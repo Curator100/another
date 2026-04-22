@@ -1,0 +1,95 @@
+{
+  "name": "WE, WOMAN — আমরাই নারী, আমরাই পারি",
+  "short_name": "WE, WOMAN",
+  "description": "নারী সুরক্ষা ও ক্ষমতায়ন প্রোগ্রাম — রাস্তা-ঘাটে সুরক্ষা ও আর্থিক উন্নতির জন্য",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fff0f3",
+  "theme_color": "#c9184a",
+  "lang": "bn",
+  "dir": "ltr",
+  "scope": "/",
+  "categories": ["education", "social", "lifestyle"],
+  "icons": [
+    {
+      "src": "/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "WE, WOMAN Home Screen"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "SOS জরুরি সাহায্য",
+      "short_name": "SOS",
+      "description": "দ্রুত SOS পাঠান",
+      "url": "/?shortcut=sos",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "টিউশন দেখুন",
+      "short_name": "টিউশন",
+      "description": "নতুন টিউশন ও চাকরি",
+      "url": "/?shortcut=jobs",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
