@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#c9184a">
+<title>WE, WOMAN — Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+:root{
+  --rose:#c9184a;--rose2:#e8174a;--rose3:#ff4d6d;--rose4:#ff85a1;--rose5:#ffb3c6;
+  --peach:#ffe0e8;--cream:#fff0f3;--deep:#800f2f;--mid:#a4133c;
+  --gold:#f4a261;--amber:#e76f51;
+  --glass:rgba(255,255,255,0.75);--gb:rgba(255,255,255,0.48);
+  --sh:0 8px 32px rgba(201,24,74,0.14);
+  --f:'Hind Siliguri','Arial Unicode MS',Arial,sans-serif;
+  --fd:'Playfair Display',serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--f);background:linear-gradient(160deg,#fff0f3 0%,#ffe0e8 40%,#ffb3c6 100%);min-height:100vh;overflow-x:hidden}
+#ldg{position:fixed;inset:0;z-index:9999;background:linear-gradient(160deg,#fff0f3,#ffe0e8);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.sp{width:44px;height:44px;border:4px solid rgba(201,24,74,.18);border-top-color:var(--rose);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* LOGIN */
+#login-scr{display:none;min-height:100vh;align-items:center;justify-content:center;padding:20px}
+.lcard{background:var(--glass);backdrop-filter:blur(24px);border:1px solid var(--gb);border-radius:24px;padding:34px 26px;width:100%;max-width:360px;box-shadow:var(--sh)}
+.llogo{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#c9184a,#ff4d6d);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 8px 24px rgba(201,24,74,.35)}
+.ltitle{font-family:var(--fd);font-size:19px;font-weight:900;color:var(--deep);text-align:center;margin-bottom:4px}
+.lsub{font-size:12px;color:var(--rose);text-align:center;margin-bottom:24px;font-weight:500}
+.fg{margin-bottom:13px}
+.fl{display:block;font-size:11px;font-weight:700;color:var(--mid);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.fi{width:100%;padding:11px 14px;border:1.5px solid rgba(201,24,74,.18);border-radius:12px;background:rgba(255,255,255,.9);font-family:var(--f);font-size:14px;color:#333;outline:none;transition:border-color .2s;-webkit-appearance:none}
+.fi:focus{border-color:var(--rose3);box-shadow:0 0 0 3px rgba(255,77,109,.12)}
+.bp{width:100%;padding:13px;background:linear-gradient(135deg,#c9184a,#ff4d6d);color:#fff;border:none;border-radius:14px;font-family:var(--f);font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 5px 18px rgba(201,24,74,.3);transition:transform .15s}
+.bp:active{transform:scale(.97)}
+.bp:disabled{opacity:.6;cursor:not-allowed}
+.em{background:#ffe0e8;border:1px solid #ff85a1;color:var(--rose);padding:10px 13px;border-radius:10px;font-size:13px;margin-bottom:10px;display:none;line-height:1.5}
+
+/* LAYOUT */
+#app-scr{display:none}
+.top-nav{background:rgba(255,240,243,0.88);backdrop-filter:blur(24px);border-bottom:1px solid rgba(201,24,74,.12);padding:11px 16px;position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tnbrand{display:flex;align-items:center;gap:10px}
+.tnlogo{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#c9184a,#ff4d6d);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(201,24,74,.3)}
+.tnname{font-family:var(--fd);font-size:13px;font-weight:900;color:var(--deep)}
+.tnsub{font-size:10px;color:var(--rose);font-weight:500}
+.tnuser{font-size:11px;color:#888;text-align:right}
+.tnuser strong{display:block;font-size:12px;color:var(--mid);font-weight:700}
+.lout-btn{background:rgba(201,24,74,.08);border:none;color:var(--rose);padding:4px 10px;border-radius:8px;font-family:var(--f);font-size:10px;cursor:pointer;margin-top:3px;font-weight:600}
+
+/* Notification bell */
+.notif-bell{position:relative;cursor:pointer;background:rgba(201,24,74,.08);border:none;border-radius:9px;padding:6px 9px;font-size:18px;line-height:1}
+.notif-badge{position:absolute;top:-3px;right:-3px;width:16px;height:16px;border-radius:50%;background:var(--rose2);color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;display:none}
+.notif-badge.show{display:flex}
+
+/* Tab nav */
+.tab-nav{display:flex;overflow-x:auto;background:rgba(255,255,255,.5);border-bottom:1px solid rgba(201,24,74,.1);-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tab-nav::-webkit-scrollbar{display:none}
+.tnav{flex-shrink:0;padding:11px 15px;border:none;background:transparent;font-family:var(--f);font-size:12px;font-weight:600;color:#aaa;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;white-space:nowrap}
+.tnav.active{color:var(--rose);border-bottom-color:var(--rose);background:rgba(201,24,74,.04)}
+
+.main{padding:14px;max-width:960px;margin:0 auto}
+
+/* Card */
+.card{background:var(--glass);backdrop-filter:blur(16px);border:1px solid var(--gb);border-radius:20px;padding:18px;box-shadow:var(--sh);margin-bottom:16px}
+.card-title{font-size:15px;font-weight:800;color:var(--mid);margin-bottom:14px;padding-bottom:9px;border-bottom:2px solid rgba(201,24,74,.1);font-family:var(--fd)}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
+.stat{background:var(--glass);backdrop-filter:blur(12px);border:1px solid var(--gb);border-radius:16px;padding:16px 12px;text-align:center;box-shadow:0 4px 14px rgba(201,24,74,.08)}
+.stat-n{font-size:28px;font-weight:900;color:var(--rose);font-family:var(--fd)}
+.stat-l{font-size:11px;color:#777;margin-top:3px;font-weight:500}
+
+/* Section header */
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.sec-title{font-family:var(--fd);font-size:20px;font-weight:900;color:var(--deep)}
+.bkbtn{background:rgba(201,24,74,.08);border:1.5px solid rgba(201,24,74,.15);border-radius:10px;padding:7px 13px;font-family:var(--f);font-size:12px;font-weight:700;color:var(--rose);cursor:pointer;display:flex;align-items:center;gap:4px}
+.bkbtn:active{opacity:.7}
+
+/* Table */
+.tbl-wrap{overflow-x:auto;border-radius:12px;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;min-width:560px}
+th{background:rgba(201,24,74,.07);padding:11px 13px;text-align:left;font-size:11px;font-weight:700;color:var(--mid);white-space:nowrap;letter-spacing:.3px}
+td{padding:11px 13px;font-size:12px;color:#444;border-bottom:1px solid rgba(201,24,74,.05)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(201,24,74,.02)}
+
+/* Badges */
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.bg{background:rgba(34,197,94,.12);color:#16a34a}
+.br{background:rgba(201,24,74,.12);color:var(--rose)}
+.bp2{background:rgba(244,162,97,.15);color:#c06000}
+.bb{background:rgba(59,130,246,.12);color:#1d4ed8}
+
+/* Buttons */
+.bsm{padding:6px 12px;border:none;border-radius:9px;font-family:var(--f);font-size:11px;font-weight:700;cursor:pointer;transition:transform .15s,opacity .15s;white-space:nowrap}
+.bsm:active{transform:scale(.95)}
+.bd{background:rgba(201,24,74,.1);color:var(--rose)}
+.bs{background:rgba(34,197,94,.1);color:#16a34a}
+.bsec{background:rgba(201,24,74,.07);color:var(--rose)}
+.bblue{background:rgba(59,130,246,.1);color:#1d4ed8}
+.borange{background:rgba(244,162,97,.15);color:#c06000}
+.bpri{background:linear-gradient(135deg,#c9184a,#ff4d6d);color:#fff;padding:10px 18px;box-shadow:0 4px 12px rgba(201,24,74,.25)}
+
+/* Forms */
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+@media(max-width:480px){.fr2,.fr3{grid-template-columns:1fr}}
+.fsel{width:100%;padding:11px 14px;border:1.5px solid rgba(201,24,74,.18);border-radius:12px;background:rgba(255,255,255,.9);font-family:var(--f);font-size:13px;color:#333;outline:none;-webkit-appearance:none}
+.fsel:focus{border-color:var(--rose3)}
+.fta{width:100%;padding:11px 14px;border:1.5px solid rgba(201,24,74,.18);border-radius:12px;background:rgba(255,255,255,.9);font-family:var(--f);font-size:13px;color:#333;outline:none;height:72px;resize:vertical}
+.fta:focus{border-color:var(--rose3)}
+
+/* Referral box */
+.refbox{background:rgba(201,24,74,.05);border:1px dashed rgba(201,24,74,.22);border-radius:9px;padding:8px 12px;font-size:11px;color:var(--mid);font-family:monospace;word-break:break-all;margin-top:5px}
+.copybtn{background:rgba(201,24,74,.1);border:none;border-radius:7px;padding:5px 9px;font-size:10px;color:var(--rose);cursor:pointer;margin-left:6px;font-weight:600}
+
+/* Tuition card */
+.tcard{background:rgba(255,255,255,.78);border:1px solid rgba(201,24,74,.1);border-radius:15px;padding:15px;margin-bottom:11px;position:relative}
+.tcard-serial{position:absolute;top:10px;right:12px;font-size:10px;color:#ccc;font-weight:700;font-family:var(--fd)}
+.tcard-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:9px}
+.tcard-loc{font-size:14px;font-weight:800;color:var(--deep)}
+.tcard-sal{background:linear-gradient(135deg,#c9184a,#ff4d6d);color:#fff;padding:3px 11px;border-radius:16px;font-size:12px;font-weight:700;white-space:nowrap;box-shadow:0 3px 8px rgba(201,24,74,.25)}
+.tcard-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.tcard-tag{background:rgba(201,24,74,.07);color:var(--rose);padding:3px 9px;border-radius:7px;font-size:11px;font-weight:600}
+.tcard-note{font-size:12px;color:#666;margin-bottom:9px;line-height:1.6;padding:8px 10px;background:rgba(201,24,74,.03);border-radius:8px;border-left:3px solid var(--rose5)}
+.tcard-meta{font-size:11px;color:#aaa;margin-bottom:10px}
+.tcard-actions{display:flex;gap:7px;flex-wrap:wrap}
+
+/* Pipeline status badge */
+.pipe-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;margin-bottom:8px}
+.pipe-new{background:rgba(156,163,175,.15);color:#6b7280}
+.pipe-booked{background:rgba(59,130,246,.12);color:#1d4ed8}
+.pipe-call{background:rgba(244,162,97,.15);color:#c06000}
+.pipe-guardian{background:rgba(168,85,247,.12);color:#7c3aed}
+.pipe-demo{background:rgba(34,197,94,.12);color:#15803d}
+.pipe-inst1{background:rgba(234,179,8,.12);color:#a16207}
+.pipe-inst2{background:rgba(234,179,8,.18);color:#92400e}
+.pipe-done_success{background:rgba(34,197,94,.2);color:#14532d}
+.pipe-done_fail{background:rgba(201,24,74,.12);color:var(--mid)}
+
+/* Applied info */
+.appinfo{background:rgba(255,255,255,.9);border:1px solid rgba(201,24,74,.1);border-radius:13px;padding:14px;margin-bottom:10px}
+.appinfo h4{font-size:13px;font-weight:800;color:var(--mid);margin-bottom:6px}
+.appinfo p{font-size:12px;color:#555;line-height:1.85}
+.select-tutor-btn{margin-top:9px;padding:7px 14px;border-radius:9px;border:none;font-family:var(--f);font-size:12px;font-weight:700;cursor:pointer;transition:all .2s}
+.select-tutor-btn.unsel{background:rgba(201,24,74,.08);color:var(--rose)}
+.select-tutor-btn.sel{background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;box-shadow:0 3px 10px rgba(21,128,61,.25)}
+.select-tutor-btn:active{transform:scale(.95)}
+
+/* Modal */
+.mbg{position:fixed;inset:0;z-index:300;background:rgba(128,15,47,.5);backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.mbg.open{opacity:1;pointer-events:all}
+.mbox{background:linear-gradient(155deg,#fff0f3,#ffe0e8 60%,#fff0f3);border-radius:24px 24px 0 0;padding:22px 20px 38px;width:100%;max-width:560px;max-height:92vh;overflow-y:auto;transform:translateY(100%);transition:transform .38s cubic-bezier(.34,1.56,.64,1)}
+.mbg.open .mbox{transform:translateY(0)}
+.mdg{width:36px;height:4px;background:rgba(201,24,74,.2);border-radius:4px;margin:0 auto 18px}
+.mttl{font-size:17px;font-weight:800;color:var(--deep);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;font-family:var(--fd)}
+.mx{background:rgba(201,24,74,.08);border:none;font-size:18px;cursor:pointer;color:var(--rose);padding:5px 8px;line-height:1;border-radius:8px}
+
+/* Pipeline update section */
+.pipe-section{background:rgba(255,255,255,.6);border:1px solid rgba(201,24,74,.1);border-radius:14px;padding:14px;margin-top:10px}
+.pipe-section-title{font-size:13px;font-weight:800;color:var(--mid);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.pipe-options{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}
+.pipe-opt{padding:9px 10px;border:1.5px solid rgba(201,24,74,.15);border-radius:10px;background:rgba(255,255,255,.7);font-family:var(--f);font-size:11px;font-weight:700;color:#666;cursor:pointer;text-align:center;transition:all .2s}
+.pipe-opt.active{border-color:var(--rose);background:rgba(201,24,74,.08);color:var(--rose)}
+.pipe-opt:active{transform:scale(.96)}
+.pipe-note-field{width:100%;padding:10px 12px;border:1.5px solid rgba(201,24,74,.15);border-radius:10px;background:rgba(255,255,255,.85);font-family:var(--f);font-size:12px;color:#333;outline:none;resize:vertical;height:64px;margin-bottom:10px}
+.pipe-note-field:focus{border-color:var(--rose3)}
+.pipe-save-btn{width:100%;padding:11px;background:linear-gradient(135deg,#c9184a,#ff4d6d);color:#fff;border:none;border-radius:11px;font-family:var(--f);font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(201,24,74,.25)}
+
+/* Mod jobsboard card */
+.mjb-card{background:rgba(255,255,255,.78);border:1px solid rgba(201,24,74,.1);border-radius:15px;padding:15px;margin-bottom:12px}
+.mjb-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.mjb-loc{font-size:14px;font-weight:800;color:var(--deep)}
+.mjb-sal{font-size:12px;color:var(--rose);font-weight:700}
+.mjb-tutor{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:10px 12px;margin-bottom:10px}
+.mjb-tutor-title{font-size:11px;font-weight:700;color:#15803d;margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.mjb-tutor-name{font-size:13px;font-weight:800;color:#14532d}
+.mjb-tutor-phone{font-size:12px;color:#15803d;margin-top:2px}
+
+/* Skeleton */
+.skl{height:12px;border-radius:6px;margin-bottom:8px;animation:sk 1.4s infinite}
+@keyframes sk{0%{background:linear-gradient(90deg,#ffb3c6 25%,#ff85a1 50%,#ffb3c6 75%);background-size:200%;background-position:200% 0}100%{background:linear-gradient(90deg,#ffb3c6 25%,#ff85a1 50%,#ffb3c6 75%);background-size:200%;background-position:-200% 0}}
+
+/* Toast */
+.toast{position:fixed;bottom:20px;right:20px;background:linear-gradient(135deg,#c9184a,#800f2f);color:#fff;padding:11px 18px;border-radius:14px;font-size:13px;font-weight:700;z-index:999;opacity:0;transform:translateY(8px);transition:all .3s;box-shadow:0 6px 22px rgba(201,24,74,.4);max-width:90vw}
+.toast.show{opacity:1;transform:translateY(0)}
+@media(max-width:480px){.toast{left:14px;right:14px;text-align:center;bottom:14px}}
+
+/* Ref banner */
+.ref-banner{background:linear-gradient(135deg,rgba(201,24,74,.08),rgba(244,162,97,.08));border:1.5px solid rgba(201,24,74,.18);border-radius:16px;padding:18px;margin-bottom:16px}
+.ref-count{font-size:38px;font-weight:900;color:var(--rose);font-family:var(--fd)}
+.no-data{text-align:center;padding:38px;color:var(--rose);font-size:13px;font-weight:500}
+.fbtns{display:flex;gap:7px;flex-wrap:wrap}
+
+/* Pagination */
+.pg-ctrl{display:flex;align-items:center;justify-content:space-between;margin-top:14px;gap:10px;flex-wrap:wrap}
+.pg-info{font-size:12px;color:#888;font-weight:500}
+.pg-btns{display:flex;gap:6px}
+.pg-btn{padding:6px 13px;border:1.5px solid rgba(201,24,74,.18);border-radius:9px;background:rgba(255,255,255,.7);color:var(--rose);font-family:var(--f);font-size:12px;font-weight:700;cursor:pointer}
+.pg-btn:disabled{opacity:.35;cursor:default}
+.copy-list-btn{padding:7px 14px;background:rgba(201,24,74,.08);border:1.5px solid rgba(201,24,74,.15);border-radius:10px;color:var(--rose);font-family:var(--f);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap}
+
+/* Notif dropdown */
+.notif-drop{position:absolute;top:calc(100% + 8px);right:0;width:300px;background:#fff;border:1px solid rgba(201,24,74,.15);border-radius:16px;box-shadow:0 12px 36px rgba(201,24,74,.2);z-index:300;overflow:hidden;display:none}
+.notif-drop.open{display:block}
+.notif-item{padding:12px 14px;border-bottom:1px solid rgba(201,24,74,.06);font-size:12px;color:#444;line-height:1.6}
+.notif-item:last-child{border-bottom:none}
+.notif-item strong{color:var(--mid);display:block;font-size:13px;margin-bottom:2px}
+.notif-empty{padding:20px;text-align:center;color:#bbb;font-size:12px}
+.notif-wrap{position:relative}
+</style>
+</head>
+<body>
+
+<div id="ldg">
+  <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#c9184a,#ff4d6d);display:flex;align-items:center;justify-content:center;box-shadow:0 0 30px rgba(201,24,74,.4)">
+    <div style="text-align:center"><div style="font-family:'Playfair Display',serif;font-size:11px;color:#fff;font-weight:900;line-height:1">WE,</div><div style="font-size:6px;color:rgba(255,255,255,.85);letter-spacing:2px;font-weight:600">WOMAN</div></div>
+  </div>
+  <div class="sp"></div>
+  <div style="color:var(--mid);font-size:12px;font-weight:600">লোড হচ্ছে...</div>
+</div>
+
+<div id="login-scr">
+  <div class="lcard">
+    <div class="llogo" style="flex-direction:column;font-family:'Playfair Display',serif">
+      <span style="font-size:13px;color:#fff;font-weight:900;line-height:1">WE,</span>
+      <span style="font-size:7px;color:rgba(255,255,255,.85);letter-spacing:2px">WOMAN</span>
+    </div>
+    <div class="ltitle" style="margin-top:4px">WE, WOMAN Admin</div>
+    <div class="lsub">অ্যাডমিন ও মডারেটর লগইন</div>
+    <div id="lerr" class="em"></div>
+    <div class="fg"><label class="fl">ইউজারনেম</label><input type="text" id="lu" class="fi" placeholder="ইউজারনেম" autocomplete="username"></div>
+    <div class="fg"><label class="fl">পাসওয়ার্ড</label><input type="password" id="lp" class="fi" placeholder="পাসওয়ার্ড" autocomplete="current-password"></div>
+    <button class="bp" id="lbtn" onclick="doLogin()">প্রবেশ করুন →</button>
+  </div>
+</div>
+
+<div id="app-scr">
+  <div class="top-nav">
+    <div class="tnbrand">
+      <div class="tnlogo" style="flex-direction:column">
+        <span style="font-family:'Playfair Display',serif;font-size:8px;color:#fff;font-weight:900;line-height:1">WE,</span>
+        <span style="font-size:5px;color:rgba(255,255,255,.85);letter-spacing:1px">WOMAN</span>
+      </div>
+      <div><div class="tnname">Admin Panel</div><div class="tnsub">ম্যানেজমেন্ট</div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="notif-wrap">
+        <button class="notif-bell" id="notif-bell" onclick="toggleNotif()">🔔
+          <span class="notif-badge" id="notif-badge"></span>
+        </button>
+        <div class="notif-drop" id="notif-drop">
+          <div style="padding:12px 14px;border-bottom:1px solid rgba(201,24,74,.08);font-size:12px;font-weight:800;color:var(--mid);display:flex;align-items:center;justify-content:space-between">
+            নোটিফিকেশন
+            <button onclick="markNotifsRead()" style="background:none;border:none;font-size:11px;color:var(--rose);cursor:pointer;font-weight:600">সব পড়া হয়েছে</button>
+          </div>
+          <div id="notif-list"><div class="notif-empty">কোনো নোটিফিকেশন নেই</div></div>
+        </div>
+      </div>
+      <div class="tnuser">
+        <strong id="snm">—</strong>
+        <span id="srl" style="font-size:10px;color:var(--rose)">—</span>
+        <button class="lout-btn" onclick="doLogout()">লগআউট</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-nav" id="tab-nav">
+    <button class="tnav active" onclick="showSec('dash',this)">📊 ড্যাশবোর্ড</button>
+    <button class="tnav" onclick="showSec('jobsboard',this)">📋 আমার জবসবোর্ড</button>
+    <button class="tnav" onclick="showSec('users',this)">👥 ব্যবহারকারী</button>
+    <button class="tnav" onclick="showSec('tuitions',this)">💼 টিউশন</button>
+    <button class="tnav" id="mod-tab" onclick="showSec('mods',this)">🛡️ মডারেটর</button>
+  </div>
+
+  <div class="main">
+
+    <!-- Dashboard -->
+    <div id="sec-dash" class="sec">
+      <div class="sec-hdr"><div class="sec-title">ড্যাশবোর্ড</div></div>
+      <div class="stats" id="dash-stats">
+        <div class="stat"><div class="skl" style="width:50px;margin:0 auto 8px;height:28px;border-radius:8px"></div><div class="skl" style="width:80px;margin:0 auto;height:10px"></div></div>
+        <div class="stat"><div class="skl" style="width:50px;margin:0 auto 8px;height:28px;border-radius:8px"></div><div class="skl" style="width:80px;margin:0 auto;height:10px"></div></div>
+        <div class="stat"><div class="skl" style="width:50px;margin:0 auto 8px;height:28px;border-radius:8px"></div><div class="skl" style="width:80px;margin:0 auto;height:10px"></div></div>
+        <div class="stat"><div class="skl" style="width:50px;margin:0 auto 8px;height:28px;border-radius:8px"></div><div class="skl" style="width:80px;margin:0 auto;height:10px"></div></div>
+      </div>
+      <div id="mod-ref-banner" style="display:none" class="ref-banner">
+        <div style="font-size:13px;color:var(--mid);font-weight:700;margin-bottom:6px">আপনার রেফারেল</div>
+        <div class="ref-count" id="mod-ref-num">0</div>
+        <div style="font-size:12px;color:#777;margin-top:3px">জন নিবন্ধন করেছেন আপনার লিঙ্ক দিয়ে</div>
+        <div style="font-size:12px;color:var(--mid);font-weight:700;margin-top:12px">রেফারেল লিঙ্ক:</div>
+        <div class="refbox" id="mod-ref-link">—</div>
+        <button class="copybtn" style="margin-top:7px" onclick="copyRef()">📋 কপি করুন</button>
+      </div>
+      <div class="card">
+        <div class="card-title">সাম্প্রতিক নিবন্ধন</div>
+        <div id="recent-list"><div class="skl" style="height:38px;margin-bottom:7px"></div><div class="skl" style="height:38px;margin-bottom:7px"></div><div class="skl" style="height:38px"></div></div>
+      </div>
+    </div>
+
+    <!-- Mod Jobsboard -->
+    <div id="sec-jobsboard" class="sec" style="display:none">
+      <div class="sec-hdr">
+        <div class="sec-title">আমার জবসবোর্ড</div>
+        <button class="bkbtn" onclick="goBack()">← ফিরুন</button>
+      </div>
+      <div style="font-size:13px;color:#777;margin-bottom:14px;line-height:1.6">
+        আপনার রেফার করা টিউটর যেসব টিউশনে সিলেক্ট হয়েছেন, সেগুলো এখানে দেখুন এবং আপডেট করুন।
+      </div>
+      <div id="jobsboard-list"><div class="skl" style="height:80px;margin-bottom:10px"></div><div class="skl" style="height:80px"></div></div>
+    </div>
+
+    <!-- Users -->
+    <div id="sec-users" class="sec" style="display:none">
+      <div class="sec-hdr">
+        <div class="sec-title">নিবন্ধিত ব্যবহারকারী</div>
+        <button class="bkbtn" onclick="goBack()">← ফিরুন</button>
+      </div>
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+          <input type="text" id="usrch" class="fi" placeholder="🔍 নাম / ইমেইল / নম্বর..." style="flex:1;min-width:150px" oninput="filterUsers()">
+          <input type="text" id="usrch-uni" class="fi" placeholder="🏫 বিশ্ববিদ্যালয়..." style="flex:1;min-width:150px" oninput="filterUsers()">
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+          <span id="ucnt" style="font-size:12px;color:#888;font-weight:500"></span>
+          <button class="copy-list-btn" onclick="copyUserList()">📋 এই পেজের লিস্ট কপি</button>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>#</th><th>নাম</th><th>WhatsApp</th><th>ইমেইল</th><th>বিশ্ববিদ্যালয়</th><th>বর্ষ</th><th>অভিভাবক</th><th>জরুরি যোগাযোগ</th><th>রেফারেল (মড)</th><th>তারিখ</th></tr></thead>
+            <tbody id="utbody"></tbody>
+          </table>
+        </div>
+        <div class="pg-ctrl">
+          <div class="pg-info" id="pg-info-u"></div>
+          <div class="pg-btns">
+            <button class="pg-btn" id="pg-prev-u" onclick="changePage(-1)" disabled>← আগে</button>
+            <button class="pg-btn" id="pg-next-u" onclick="changePage(1)">পরে →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tuitions -->
+    <div id="sec-tuitions" class="sec" style="display:none">
+      <div class="sec-hdr">
+        <div class="sec-title">টিউশন ও চাকরি</div>
+        <button class="bkbtn" onclick="goBack()">← ফিরুন</button>
+      </div>
+
+      <!-- Post form (admin only) -->
+      <div class="card" id="post-form-card" style="display:none">
+        <div class="card-title">নতুন টিউশন পোস্ট করুন</div>
+        <div class="fr2">
+          <div class="fg"><label class="fl">লোকেশন *</label><input type="text" id="tl" class="fi" placeholder="যেমন: মিরপুর ১০, ঢাকা"></div>
+          <div class="fg"><label class="fl">বেতন (টাকা/মাস) *</label><input type="number" id="ts" class="fi" placeholder="যেমন: 6000"></div>
+        </div>
+        <div class="fr2">
+          <div class="fg"><label class="fl">ক্লাস *</label><input type="text" id="tc" class="fi" placeholder="যেমন: ক্লাস ৯-১০"></div>
+          <div class="fg"><label class="fl">মিডিয়াম *</label>
+            <select id="tm" class="fsel"><option value="">মিডিয়াম বেছে নিন</option><option>বাংলা মিডিয়াম</option><option>ইংলিশ মিডিয়াম</option><option>ইংরেজি ভার্সন</option><option>মাদ্রাসা</option></select>
+          </div>
+        </div>
+        <div class="fr3">
+          <div class="fg"><label class="fl">দিন</label><input type="text" id="td" class="fi" placeholder="যেমন: শনি, মঙ্গল"></div>
+          <div class="fg"><label class="fl">সময়</label><input type="text" id="ttime" class="fi" placeholder="যেমন: বিকাল ৫টা"></div>
+          <div class="fg"><label class="fl">ভার্সন</label><input type="text" id="tver" class="fi" placeholder="যেমন: বাংলা ভার্সন"></div>
+        </div>
+        <div class="fg"><label class="fl">বিস্তারিত নোট</label><textarea id="tn" class="fta" placeholder="অতিরিক্ত তথ্য..."></textarea></div>
+        <button class="bsm bpri" id="postbtn" onclick="postTuition()">পোস্ট করুন</button>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+          <div class="card-title" style="margin-bottom:0;border-bottom:none;padding-bottom:0">সকল টিউশন</div>
+          <div class="fbtns">
+            <button class="bsm bsec" onclick="filterT('all')">সব</button>
+            <button class="bsm bs" onclick="filterT('available')">উপলব্ধ</button>
+            <button class="bsm bd" onclick="filterT('booked')">বুকড</button>
+          </div>
+        </div>
+        <div id="tlist"></div>
+      </div>
+    </div>
+
+    <!-- Moderators -->
+    <div id="sec-mods" class="sec" style="display:none">
+      <div class="sec-hdr">
+        <div class="sec-title">মডারেটর ম্যানেজমেন্ট</div>
+        <button class="bkbtn" onclick="goBack()">← ফিরুন</button>
+      </div>
+      <div class="card">
+        <div class="card-title">মডারেটর তালিকা ও রেফারেল</div>
+        <div id="mlist"></div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app-scr -->
+
+<!-- Applicants Modal -->
+<div class="mbg" id="appmod">
+  <div class="mbox">
+    <div class="mdg"></div>
+    <div class="mttl">আবেদনকারীদের তথ্য <button class="mx" onclick="closeAppMod()">✕</button></div>
+    <div id="appmod-c"></div>
+  </div>
+</div>
+
+<!-- Pipeline Update Modal -->
+<div class="mbg" id="pipemod">
+  <div class="mbox">
+    <div class="mdg"></div>
+    <div class="mttl">পাইপলাইন আপডেট <button class="mx" onclick="closePipeMod()">✕</button></div>
+    <div id="pipemod-c"></div>
+  </div>
+</div>
+
+<div class="toast" id="atst"></div>
+
+<script>
+const SBU='https://lufglfdykmvrymlszbmw.supabase.co';
+const SBK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1ZmdsZmR5a212cnltbHN6Ym13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2OTcxNjYsImV4cCI6MjA5MjI3MzE2Nn0.sGk_QrQwNI3z_deWZOO3umjm6OKJ3q_iH6k1YELhCnk';
+const sb=supabase.createClient(SBU,SBK,{auth:{persistSession:false}});
+const ADMIN={u:'rayhan',p:'milliondollar'};
+const PAGE_SIZE=20;
+const PIPE_STATUSES=[
+  {val:'new',label:'নতুন',icon:'🆕'},
+  {val:'booked',label:'বুকড',icon:'📌'},
+  {val:'call_given',label:'টিউটরকে কল দেওয়া হয়েছে',icon:'📞'},
+  {val:'guardian_given',label:'গার্ডিয়ান নম্বর দেওয়া হয়েছে',icon:'👨‍👩‍👦'},
+  {val:'demo_done',label:'ডেমো ক্লাস হয়েছে',icon:'✏️'},
+  {val:'first_installment',label:'প্রথম কিস্তি পাওয়া গেছে',icon:'💸'},
+  {val:'second_installment',label:'দ্বিতীয় কিস্তি পাওয়া গেছে',icon:'💰'},
+  {val:'done_success',label:'সম্পন্ন (সফল)',icon:'✅'},
+  {val:'done_fail',label:'সম্পন্ন (ব্যর্থ)',icon:'❌'},
+];
+let sess=null,allUsers=[],filteredUsers=[],allTuits=[],tFilter='all',modMap={},userPage=1,curPipeTuitId=null,selectedPipeStatus=null;
+
+// ─── INIT ───
+window.addEventListener('load',async()=>{
+  await new Promise(r=>setTimeout(r,700));
+  document.getElementById('ldg').style.display='none';
+  const s=localStorage.getItem('wsep_admin');
+  if(s){try{sess=JSON.parse(s);showApp();}catch{showLogin();}}else showLogin();
+});
+function showLogin(){document.getElementById('login-scr').style.display='flex';}
+function showApp(){
+  document.getElementById('login-scr').style.display='none';
+  document.getElementById('app-scr').style.display='block';
+  document.getElementById('snm').textContent=sess.username;
+  document.getElementById('srl').textContent=sess.role==='admin'?'🔴 অ্যাডমিন':'🟡 মডারেটর';
+  if(sess.role!=='admin')document.getElementById('mod-tab').style.display='none';
+  loadDash();
+  loadNotifs();
+}
+
+async function doLogin(){
+  const u=document.getElementById('lu').value.trim();
+  const p=document.getElementById('lp').value.trim();
+  const btn=document.getElementById('lbtn');
+  const er=document.getElementById('lerr');
+  er.style.display='none';btn.disabled=true;btn.textContent='যাচাই হচ্ছে...';
+  if(u===ADMIN.u&&p===ADMIN.p){
+    sess={username:u,role:'admin'};localStorage.setItem('wsep_admin',JSON.stringify(sess));showApp();
+    btn.disabled=false;btn.textContent='প্রবেশ করুন →';return;
+  }
+  try{
+    const{data,error}=await sb.from('wsep_moderators').select('*').eq('username',u).eq('password',p).maybeSingle();
+    if(error)throw error;
+    if(!data){er.textContent='ভুল ইউজারনেম বা পাসওয়ার্ড।';er.style.display='block';}
+    else if(data.is_banned){er.textContent='এই অ্যাকাউন্ট ব্যান করা হয়েছে।';er.style.display='block';}
+    else{sess={username:data.username,role:'moderator',ref_code:data.referral_code,ref_count:data.referral_count||0,mod_id:data.id};localStorage.setItem('wsep_admin',JSON.stringify(sess));showApp();}
+  }catch(e){er.textContent='সংযোগ সমস্যা: '+e.message;er.style.display='block';}
+  btn.disabled=false;btn.textContent='প্রবেশ করুন →';
+}
+function doLogout(){sess=null;localStorage.removeItem('wsep_admin');document.getElementById('app-scr').style.display='none';showLogin();}
+
+// ─── SECTIONS ───
+function showSec(sec,el){
+  document.querySelectorAll('.sec').forEach(s=>s.style.display='none');
+  document.querySelectorAll('.tnav').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sec-'+sec).style.display='block';
+  if(el)el.classList.add('active');
+  if(sec==='dash')loadDash();
+  else if(sec==='jobsboard')loadJobsboard();
+  else if(sec==='users')loadUsers();
+  else if(sec==='tuitions')loadTuitions();
+  else if(sec==='mods')loadMods();
+}
+function goBack(){
+  document.querySelectorAll('.tnav').forEach(b=>b.classList.remove('active'));
+  document.querySelector('.tnav').classList.add('active');
+  document.querySelectorAll('.sec').forEach(s=>s.style.display='none');
+  document.getElementById('sec-dash').style.display='block';
+  loadDash();
+}
+
+// ─── NOTIFICATIONS ───
+async function loadNotifs(){
+  if(sess.role!=='moderator')return;
+  const{data}=await sb.from('wsep_mod_notifications').select('*').eq('mod_username',sess.username).order('created_at',{ascending:false}).limit(20);
+  const notifs=data||[];
+  const unread=notifs.filter(n=>!n.is_read).length;
+  const badge=document.getElementById('notif-badge');
+  badge.textContent=unread>9?'9+':unread||'';
+  badge.classList.toggle('show',unread>0);
+  const list=document.getElementById('notif-list');
+  list.innerHTML=notifs.length?notifs.map(n=>`<div class="notif-item" style="${!n.is_read?'background:rgba(201,24,74,.04)':''}">
+    <strong>🎉 নতুন টিউটর সিলেক্ট হয়েছে!</strong>
+    ${n.tutor_name} — ${n.tutor_phone}<br>
+    <span style="color:#aaa;font-size:11px">${new Date(n.created_at).toLocaleString('bn-BD')}</span>
+  </div>`):'<div class="notif-empty">কোনো নোটিফিকেশন নেই</div>';
+}
+function toggleNotif(){document.getElementById('notif-drop').classList.toggle('open');}
+async function markNotifsRead(){
+  if(sess.role!=='moderator')return;
+  await sb.from('wsep_mod_notifications').update({is_read:true}).eq('mod_username',sess.username).eq('is_read',false);
+  document.getElementById('notif-badge').classList.remove('show');
+  document.getElementById('notif-drop').classList.remove('open');
+  loadNotifs();
+}
+// Close notif on outside click
+document.addEventListener('click',e=>{
+  const bell=document.getElementById('notif-bell');
+  const drop=document.getElementById('notif-drop');
+  if(drop&&bell&&!bell.contains(e.target)&&!drop.contains(e.target))drop.classList.remove('open');
+});
+
+// ─── DASHBOARD ───
+async function loadDash(){
+  const[ur,tr,ar,mr]=await Promise.all([
+    sb.from('wsep_users').select('id,name,university,created_at',{count:'exact'}).order('created_at',{ascending:false}).limit(5),
+    sb.from('wsep_tuitions').select('id,status',{count:'exact'}),
+    sb.from('wsep_applications').select('id',{count:'exact'}),
+    sess.role==='moderator'?sb.from('wsep_moderators').select('referral_count').eq('referral_code',sess.ref_code).maybeSingle():Promise.resolve({data:null})
+  ]);
+  const uc=ur.count||0,tc=tr.count||0,ac=ar.count||0;
+  const avail=(tr.data||[]).filter(t=>t.status==='available').length;
+  document.getElementById('dash-stats').innerHTML=`
+    <div class="stat"><div class="stat-n">${uc}</div><div class="stat-l">মোট ব্যবহারকারী</div></div>
+    <div class="stat"><div class="stat-n">${tc}</div><div class="stat-l">মোট টিউশন</div></div>
+    <div class="stat"><div class="stat-n">${avail}</div><div class="stat-l">উপলব্ধ টিউশন</div></div>
+    <div class="stat"><div class="stat-n">${ac}</div><div class="stat-l">মোট আবেদন</div></div>`;
+  if(sess.role==='moderator'){
+    const refCount=mr.data?mr.data.referral_count||0:0;
+    sess.ref_count=refCount;localStorage.setItem('wsep_admin',JSON.stringify(sess));
+    document.getElementById('mod-ref-banner').style.display='block';
+    document.getElementById('mod-ref-num').textContent=refCount;
+    document.getElementById('mod-ref-link').textContent=location.origin+'/?ref='+sess.ref_code;
+  }
+  const recent=ur.data||[];
+  document.getElementById('recent-list').innerHTML=recent.length?`
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>নাম</th><th>বিশ্ববিদ্যালয়</th><th>তারিখ</th></tr></thead>
+      <tbody>${recent.map(u=>`<tr><td><strong>${u.name}</strong></td><td style="font-size:11px">${u.university}</td><td style="font-size:11px;color:#aaa">${new Date(u.created_at).toLocaleDateString('bn-BD')}</td></tr>`).join('')}</tbody>
+    </table></div>`:'<div class="no-data">কোনো ব্যবহারকারী নেই</div>';
+}
+function copyRef(){navigator.clipboard.writeText(location.origin+'/?ref='+sess.ref_code).then(()=>toast('লিঙ্ক কপি হয়েছে! 📋'));}
+
+// ─── MOD JOBSBOARD ───
+async function loadJobsboard(){
+  const el=document.getElementById('jobsboard-list');
+  el.innerHTML=`<div class="skl" style="height:80px;margin-bottom:10px"></div><div class="skl" style="height:80px"></div>`;
+  // Get all applications that are selected and belong to tutor referred by this mod
+  // Step 1: get all users referred by this mod
+  let refCode=sess.ref_code||'';
+  const{data:myUsers}=await sb.from('wsep_users').select('id,name,whatsapp').eq('referral_code',refCode);
+  if(!myUsers||!myUsers.length){el.innerHTML='<div class="no-data">আপনার রেফার করা কোনো টিউটর এখনো সিলেক্ট হয়নি।</div>';return;}
+  const myUserIds=myUsers.map(u=>u.id);
+  // Step 2: get selected applications for those users
+  const{data:apps}=await sb.from('wsep_applications').select('*').in('user_id',myUserIds).eq('is_selected',true);
+  if(!apps||!apps.length){el.innerHTML='<div class="no-data">আপনার রেফার করা কোনো টিউটর এখনো সিলেক্ট হয়নি।</div>';return;}
+  // Step 3: get tuition details
+  const tuitIds=[...new Set(apps.map(a=>a.tuition_id))];
+  const{data:tuits}=await sb.from('wsep_tuitions').select('*').in('id',tuitIds);
+  const tuitMap={};(tuits||[]).forEach(t=>{tuitMap[t.id]=t;});
+  const userMap={};myUsers.forEach(u=>{userMap[u.id]=u;});
+  el.innerHTML=apps.map(a=>{
+    const t=tuitMap[a.tuition_id]||{};
+    const u=userMap[a.user_id]||{};
+    const ps=PIPE_STATUSES.find(p=>p.val===(t.pipeline_status||'new'))||PIPE_STATUSES[0];
+    const pipeClass='pipe-'+(t.pipeline_status||'new');
+    const canEdit=sess.role==='admin'||(t.pipeline_status!=='done_success'&&t.pipeline_status!=='done_fail');
+    return `<div class="mjb-card">
+      <div class="mjb-header">
+        <div>
+          <div class="mjb-loc">📍 ${t.location||'—'} ${t.serial_no?`<span style="font-size:11px;color:#ccc">#${t.serial_no}</span>`:''}}</div>
+          <div class="mjb-sal">৳${Number(t.salary||0).toLocaleString()}/মাস • ${t.class||''}</div>
+        </div>
+        <div class="pipe-badge ${pipeClass}">${ps.icon} ${ps.label}</div>
+      </div>
+      <div class="mjb-tutor">
+        <div class="mjb-tutor-title">✅ সিলেক্টেড টিউটর</div>
+        <div class="mjb-tutor-name">${u.name||a.user_name||'—'}</div>
+        <div class="mjb-tutor-phone">📱 ${u.whatsapp||a.user_phone||'—'}</div>
+      </div>
+      ${t.pipeline_note?`<div style="font-size:12px;color:#666;padding:8px 10px;background:rgba(201,24,74,.04);border-radius:9px;border-left:3px solid var(--rose5);margin-bottom:9px;line-height:1.6">${t.pipeline_note}</div>`:''}
+      ${t.pipeline_updated_by?`<div style="font-size:11px;color:#aaa;margin-bottom:8px">আপডেট: ${t.pipeline_updated_by} • ${t.pipeline_updated_at?new Date(t.pipeline_updated_at).toLocaleString('bn-BD'):''}</div>`:''}
+      ${canEdit?`<button class="bsm bblue" onclick="openPipeMod('${t.id}','${(t.pipeline_status||'new')}')">✏️ আপডেট করুন</button>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ─── USERS ───
+async function loadUsers(){
+  document.getElementById('utbody').innerHTML='<tr><td colspan="10" style="text-align:center;padding:22px"><div class="skl" style="width:50%;margin:0 auto"></div></td></tr>';
+  const[uRes,mRes]=await Promise.all([
+    (()=>{let q=sb.from('wsep_users').select('*').order('created_at',{ascending:false});if(sess.role==='moderator')q=q.eq('referral_code',sess.ref_code);return q;})(),
+    sb.from('wsep_moderators').select('referral_code,username')
+  ]);
+  allUsers=uRes.data||[];
+  modMap={};(mRes.data||[]).forEach(m=>{modMap[m.referral_code]=m.username;});
+  userPage=1;filterUsers();
+}
+function filterUsers(){
+  const q=(document.getElementById('usrch').value||'').toLowerCase();
+  const uni=(document.getElementById('usrch-uni').value||'').toLowerCase();
+  filteredUsers=allUsers.filter(u=>{
+    const mq=!q||(u.name||'').toLowerCase().includes(q)||(u.email||'').toLowerCase().includes(q)||(u.whatsapp||'').includes(q);
+    const mu=!uni||(u.university||'').toLowerCase().includes(uni);
+    return mq&&mu;
+  });
+  userPage=1;renderUsers();
+}
+function renderUsers(){
+  const total=filteredUsers.length,totalPages=Math.ceil(total/PAGE_SIZE)||1;
+  const start=(userPage-1)*PAGE_SIZE,end=Math.min(start+PAGE_SIZE,total);
+  const pageUsers=filteredUsers.slice(start,end);
+  document.getElementById('ucnt').textContent=`মোট: ${total} জন`;
+  document.getElementById('pg-info-u').textContent=`পেজ ${userPage}/${totalPages} — ${start+1}–${end}`;
+  document.getElementById('pg-prev-u').disabled=userPage<=1;
+  document.getElementById('pg-next-u').disabled=userPage>=totalPages;
+  const tb=document.getElementById('utbody');
+  if(!pageUsers.length){tb.innerHTML='<tr><td colspan="10" class="no-data">কোনো ব্যবহারকারী নেই</td></tr>';return;}
+  tb.innerHTML=pageUsers.map((u,i)=>`<tr>
+    <td style="color:#ccc;font-size:11px">${start+i+1}</td>
+    <td><strong>${u.name}</strong></td>
+    <td>${u.whatsapp}</td>
+    <td style="font-size:11px">${u.email||'—'}</td>
+    <td>${u.university||'—'}</td>
+    <td>${u.year||'—'}</td>
+    <td>${u.parents_phone||'—'}</td>
+    <td>${u.emergency_contact||'—'}</td>
+    <td>${u.referral_code?`<span class="badge bp2">${modMap[u.referral_code]||u.referral_code}</span>`:'—'}</td>
+    <td style="font-size:11px;color:#aaa">${new Date(u.created_at).toLocaleDateString('bn-BD')}</td>
+  </tr>`).join('');
+}
+function changePage(dir){userPage+=dir;renderUsers();}
+function copyUserList(){
+  const start=(userPage-1)*PAGE_SIZE,end=Math.min(start+PAGE_SIZE,filteredUsers.length);
+  const text=filteredUsers.slice(start,end).map((u,i)=>`${start+i+1}. ${u.name} — ${u.whatsapp}`).join('\n');
+  navigator.clipboard.writeText(text).then(()=>toast(`${end-start} জনের তথ্য কপি হয়েছে! 📋`));
+}
+
+// ─── TUITIONS ───
+async function loadTuitions(){
+  // Show post form only for admin
+  if(sess.role==='admin')document.getElementById('post-form-card').style.display='block';
+  document.getElementById('tlist').innerHTML=Array(3).fill('').map(()=>`<div style="background:rgba(255,180,200,.18);border-radius:14px;padding:15px;margin-bottom:11px"><div class="skl" style="width:60%"></div><div class="skl" style="width:40%"></div><div class="skl" style="height:34px;border-radius:9px;margin-top:8px"></div></div>`).join('');
+  const{data}=await sb.from('wsep_tuitions').select('*').order('serial_no',{ascending:true,nullsFirst:false});
+  allTuits=data||[];
+  // Also build mod map
+  const{data:mods}=await sb.from('wsep_moderators').select('referral_code,username');
+  modMap={};(mods||[]).forEach(m=>{modMap[m.referral_code]=m.username;});
+  renderTuits();
+}
+
+function pipeBadgeHtml(status){
+  const ps=PIPE_STATUSES.find(p=>p.val===status)||PIPE_STATUSES[0];
+  return `<span class="pipe-badge pipe-${status||'new'}" style="margin-bottom:0;padding:3px 9px;font-size:10px">${ps.icon} ${ps.label}</span>`;
+}
+
+function renderTuits(){
+  const el=document.getElementById('tlist');
+  const filtered=allTuits.filter(t=>tFilter==='all'||t.status===tFilter);
+  if(!filtered.length){el.innerHTML='<div class="no-data">কোনো টিউশন নেই</div>';return;}
+  el.innerHTML=filtered.map(t=>{
+    const isAdmin=sess.role==='admin';
+    const canUpdate=isAdmin||(t.pipeline_status!=='done_success'&&t.pipeline_status!=='done_fail');
+    return `<div class="tcard">
+      <div class="tcard-serial">#${t.serial_no||'—'}</div>
+      <div class="tcard-top">
+        <div class="tcard-loc">📍 ${t.location}</div>
+        <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+          <div class="tcard-sal">৳${Number(t.salary).toLocaleString()}/মাস</div>
+          <span class="badge ${t.status==='available'?'bg':'br'}">${t.status==='available'?'উপলব্ধ':'বুকড'}</span>
+          <span class="badge ${t.show_on_site?'bg':'br'}" style="font-size:10px">${t.show_on_site?'সাইটে আছে':'সাইটে নেই'}</span>
+        </div>
+      </div>
+      <div class="tcard-tags">
+        <span class="tcard-tag">📚 ${t.class}</span>
+        <span class="tcard-tag">🗣️ ${t.medium}</span>
+        ${t.days?`<span class="tcard-tag">📅 ${t.days}</span>`:''}
+        ${t.time_slot?`<span class="tcard-tag">⏰ ${t.time_slot}</span>`:''}
+        ${t.version?`<span class="tcard-tag">📖 ${t.version}</span>`:''}
+      </div>
+      ${t.note?`<div class="tcard-note">${t.note}</div>`:''}
+      <div style="margin-bottom:8px">${pipeBadgeHtml(t.pipeline_status)}</div>
+      ${t.pipeline_note?`<div style="font-size:11px;color:#888;margin-bottom:8px;padding:6px 9px;background:rgba(201,24,74,.03);border-radius:7px;border-left:2px solid var(--rose5)">📝 ${t.pipeline_note}</div>`:''}
+      <div class="tcard-meta">পোস্ট: ${t.posted_by} • ${new Date(t.created_at).toLocaleDateString('bn-BD')}${t.pipeline_updated_by?` • আপডেট: ${t.pipeline_updated_by}`:''}</div>
+      <div class="tcard-actions">
+        ${isAdmin?`<button class="bsm ${t.status==='available'?'bd':'bs'}" onclick="toggleStatus('${t.id}','${t.status}')">${t.status==='available'?'বুকড করুন':'উপলব্ধ করুন'}</button>`:''}
+        ${isAdmin?`<button class="bsm borange" onclick="toggleSiteVisibility('${t.id}',${t.show_on_site})">${t.show_on_site?'সাইট থেকে সরান':'সাইটে দেখান'}</button>`:''}
+        <button class="bsm bsec" onclick="viewApplicants('${t.id}')">আবেদনকারী দেখুন</button>
+        ${canUpdate?`<button class="bsm bblue" onclick="openPipeMod('${t.id}','${t.pipeline_status||'new'}')">✏️ পাইপলাইন</button>`:''}
+        ${isAdmin?`<button class="bsm bd" onclick="delTuit('${t.id}')">মুছুন</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+function filterT(f){tFilter=f;renderTuits();}
+
+async function postTuition(){
+  const loc=document.getElementById('tl').value.trim();
+  const sal=parseInt(document.getElementById('ts').value);
+  const cls=document.getElementById('tc').value.trim();
+  const med=document.getElementById('tm').value;
+  const days=document.getElementById('td').value.trim();
+  const time_slot=document.getElementById('ttime').value.trim();
+  const version=document.getElementById('tver').value.trim();
+  const note=document.getElementById('tn').value.trim();
+  if(!loc||!sal||!cls||!med)return toast('সব প্রয়োজনীয় তথ্য পূরণ করুন');
+  const btn=document.getElementById('postbtn');btn.disabled=true;btn.textContent='পোস্ট হচ্ছে...';
+  const{error}=await sb.from('wsep_tuitions').insert([{
+    location:loc,salary:sal,class:cls,medium:med,days:days||null,time_slot:time_slot||null,
+    version:version||null,note:note||null,posted_by:sess.username,status:'available',
+    pipeline_status:'new',show_on_site:true
+  }]);
+  if(!error){
+    toast('টিউশন পোস্ট হয়েছে! ✅');
+    ['tl','ts','tc','tn','td','ttime','tver'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('tm').value='';
+    allTuits=[];loadTuitions();
+  }else toast('পোস্ট হয়নি: '+error.message);
+  btn.disabled=false;btn.textContent='পোস্ট করুন';
+}
+
+async function toggleStatus(id,cur){
+  if(sess.role!=='admin')return;
+  const ns=cur==='available'?'booked':'available';
+  const{error}=await sb.from('wsep_tuitions').update({status:ns}).eq('id',id);
+  if(!error){const t=allTuits.find(t=>t.id===id);if(t)t.status=ns;renderTuits();toast(`স্ট্যাটাস আপডেট হয়েছে`);}
+}
+
+async function toggleSiteVisibility(id,cur){
+  if(sess.role!=='admin')return;
+  const{error}=await sb.from('wsep_tuitions').update({show_on_site:!cur}).eq('id',id);
+  if(!error){const t=allTuits.find(t=>t.id===id);if(t)t.show_on_site=!cur;renderTuits();toast(`সাইট ভিজিবিলিটি আপডেট হয়েছে`);}
+}
+
+async function delTuit(id){
+  if(sess.role!=='admin')return;
+  if(!confirm('এই টিউশনটি মুছবেন?'))return;
+  await sb.from('wsep_tuitions').delete().eq('id',id);
+  allTuits=allTuits.filter(t=>t.id!==id);renderTuits();toast('মুছে ফেলা হয়েছে');
+}
+
+// ─── PIPELINE MODAL ───
+function openPipeMod(tid,currentStatus){
+  curPipeTuitId=tid;selectedPipeStatus=currentStatus||'new';
+  const t=allTuits.find(t=>t.id===tid)||{};
+  const c=document.getElementById('pipemod-c');
+  c.innerHTML=`
+    <div class="pipe-section">
+      <div class="pipe-section-title">📍 ${t.location||''} — পাইপলাইন স্ট্যাটাস বেছে নিন</div>
+      <div class="pipe-options" id="pipe-opts">
+        ${PIPE_STATUSES.map(p=>`<button class="pipe-opt ${selectedPipeStatus===p.val?'active':''}" onclick="selectPipeStatus('${p.val}',this)">${p.icon} ${p.label}</button>`).join('')}
+      </div>
+      <div class="pipe-section-title" style="margin-top:4px">📝 অতিরিক্ত তথ্য / নোট</div>
+      <textarea class="pipe-note-field" id="pipe-note" placeholder="যেকোনো তথ্য লিখুন...">${t.pipeline_note||''}</textarea>
+      <button class="pipe-save-btn" onclick="savePipeline()">আপডেট সেভ করুন ✓</button>
+    </div>`;
+  document.getElementById('pipemod').classList.add('open');
+}
+function closePipeMod(){document.getElementById('pipemod').classList.remove('open');}
+document.getElementById('pipemod').addEventListener('click',e=>{if(e.target===document.getElementById('pipemod'))closePipeMod();});
+function selectPipeStatus(val,el){
+  selectedPipeStatus=val;
+  document.querySelectorAll('.pipe-opt').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+async function savePipeline(){
+  if(!curPipeTuitId)return;
+  const note=document.getElementById('pipe-note').value.trim();
+  const{error}=await sb.from('wsep_tuitions').update({
+    pipeline_status:selectedPipeStatus,
+    pipeline_note:note||null,
+    pipeline_updated_by:sess.username,
+    pipeline_updated_at:new Date().toISOString()
+  }).eq('id',curPipeTuitId);
+  if(!error){
+    const t=allTuits.find(t=>t.id===curPipeTuitId);
+    if(t){t.pipeline_status=selectedPipeStatus;t.pipeline_note=note;t.pipeline_updated_by=sess.username;}
+    closePipeMod();renderTuits();toast('পাইপলাইন আপডেট হয়েছে ✅');
+    // If jobsboard is visible, refresh it
+    if(document.getElementById('sec-jobsboard').style.display!=='none')loadJobsboard();
+  }else toast('আপডেট হয়নি: '+error.message);
+}
+
+// ─── APPLICANTS ───
+async function viewApplicants(tid){
+  document.getElementById('appmod-c').innerHTML=`<div class="skl" style="height:70px;margin-bottom:9px"></div><div class="skl" style="height:70px"></div>`;
+  document.getElementById('appmod').classList.add('open');
+  if(!Object.keys(modMap).length){
+    const{data:mds}=await sb.from('wsep_moderators').select('referral_code,username');
+    (mds||[]).forEach(m=>{modMap[m.referral_code]=m.username;});
+  }
+  const{data:apps}=await sb.from('wsep_applications').select('*').eq('tuition_id',tid).order('created_at',{ascending:false});
+  if(!apps||!apps.length){document.getElementById('appmod-c').innerHTML='<div class="no-data">কোনো আবেদন নেই</div>';return;}
+  // Get referral codes for these users
+  const userIds=apps.map(a=>a.user_id).filter(Boolean);
+  const{data:usersData}=await sb.from('wsep_users').select('id,referral_code').in('id',userIds);
+  const userRefMap={};(usersData||[]).forEach(u=>{userRefMap[u.id]=u.referral_code;});
+  const isAdmin=sess.role==='admin';
+  document.getElementById('appmod-c').innerHTML=apps.map(a=>{
+    const refCode=userRefMap[a.user_id];
+    const modName=refCode?modMap[refCode]||refCode:'সরাসরি নিবন্ধন';
+    const selected=a.is_selected;
+    return `
+    <div class="appinfo" id="app-${a.id}">
+      <h4>👤 ${a.user_name} ${selected?'<span class="badge bg" style="margin-left:6px">✅ সিলেক্টেড</span>':''}</h4>
+      <p>📱 WhatsApp: <strong>${a.user_phone}</strong><br>
+         📧 ইমেইল: ${a.user_email||'—'}<br>
+         🏫 ${a.user_university} (${a.user_year})<br>
+         👨‍👩‍👦 অভিভাবক: ${a.user_parents_phone}<br>
+         🆘 জরুরি: ${a.user_emergency_contact}<br>
+         🔗 রেফারেল মড: <strong style="color:var(--rose)">${modName}</strong><br>
+         ✅ সার্ভিস চার্জ: ${a.agreed_service_charge?'সম্মত':'না'} | পেমেন্ট: ${a.agreed_payment_plan?'সম্মত':'না'}<br>
+         📅 ${new Date(a.created_at).toLocaleString('bn-BD')}</p>
+      ${isAdmin?`<button class="select-tutor-btn ${selected?'sel':'unsel'}" id="selbtn-${a.id}" onclick="toggleSelectTutor('${a.id}','${tid}','${a.user_name}','${a.user_phone}','${refCode||''}','${modName}',${selected})">
+        ${selected?'✅ সিলেক্টেড — বাতিল করুন':'⭐ টিউটর হিসেবে সিলেক্ট করুন'}
+      </button>`:''}
+    </div>`;
+  }).join('');
+}
+
+async function toggleSelectTutor(appId,tuitId,tutorName,tutorPhone,refCode,modName,currentlySelected){
+  const btn=document.getElementById('selbtn-'+appId);
+  if(btn){btn.disabled=true;btn.textContent='আপডেট হচ্ছে...';}
+  const newVal=!currentlySelected;
+  const{error}=await sb.from('wsep_applications').update({is_selected:newVal}).eq('id',appId);
+  if(!error){
+    // Update button state
+    if(btn){
+      btn.disabled=false;
+      btn.className=`select-tutor-btn ${newVal?'sel':'unsel'}`;
+      btn.textContent=newVal?'✅ সিলেক্টেড — বাতিল করুন':'⭐ টিউটর হিসেবে সিলেক্ট করুন';
+      btn.setAttribute('onclick',`toggleSelectTutor('${appId}','${tuitId}','${tutorName}','${tutorPhone}','${refCode}','${modName}',${newVal})`);
+    }
+    // Update badge in appinfo
+    const h4=document.querySelector(`#app-${appId} h4`);
+    if(h4){
+      const old=h4.querySelector('.badge');if(old)old.remove();
+      if(newVal)h4.insertAdjacentHTML('beforeend','<span class="badge bg" style="margin-left:6px">✅ সিলেক্টেড</span>');
+    }
+    toast(newVal?`${tutorName} সিলেক্ট করা হয়েছে ✅`:`${tutorName} এর সিলেকশন বাতিল করা হয়েছে`);
+    // If newly selected and mod is known, send notification
+    if(newVal&&refCode&&modMap[refCode]){
+      const modUsername=modMap[refCode];
+      // Find tuition info
+      const t=allTuits.find(t=>t.id===tuitId)||{};
+      await sb.from('wsep_mod_notifications').insert([{
+        mod_username:modUsername,
+        tuition_id:tuitId,
+        tutor_name:tutorName,
+        tutor_phone:tutorPhone,
+        message:`আপনার রেফার করা টিউটর ${tutorName} (${tutorPhone}) টিউশনে সিলেক্ট হয়েছেন — ${t.location||''}`,
+        is_read:false
+      }]);
+    }
+  }else{if(btn){btn.disabled=false;btn.textContent='আবার চেষ্টা করুন';}toast('সমস্যা হয়েছে');}
+}
+
+function closeAppMod(){document.getElementById('appmod').classList.remove('open');}
+document.getElementById('appmod').addEventListener('click',e=>{if(e.target===document.getElementById('appmod'))closeAppMod();});
+
+// ─── MODERATORS ───
+async function loadMods(){
+  if(sess.role!=='admin')return;
+  document.getElementById('mlist').innerHTML=Array(4).fill('').map(()=>`<div class="skl" style="height:52px;margin-bottom:9px"></div>`).join('');
+  const{data:mods}=await sb.from('wsep_moderators').select('*').order('created_at');
+  if(!mods){document.getElementById('mlist').innerHTML='<div class="no-data">লোড হয়নি</div>';return;}
+  const{data:userRefs}=await sb.from('wsep_users').select('referral_code').not('referral_code','is',null);
+  const countMap={};(userRefs||[]).forEach(u=>{if(u.referral_code)countMap[u.referral_code]=(countMap[u.referral_code]||0)+1;});
+  const base=location.origin;
+  document.getElementById('mlist').innerHTML=mods.map(m=>{
+    const realCount=countMap[m.referral_code]||0;
+    if(realCount!==(m.referral_count||0))sb.from('wsep_moderators').update({referral_count:realCount}).eq('id',m.id).then(()=>{});
+    return `
+    <div style="background:rgba(255,255,255,.75);border:1px solid rgba(201,24,74,.1);border-radius:14px;padding:15px;margin-bottom:11px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:14px;font-weight:800;color:var(--deep);font-family:var(--fd)">${m.username} <span class="badge ${m.is_banned?'br':'bg'}">${m.is_banned?'ব্যান':'সক্রিয়'}</span></div>
+          <div style="font-size:12px;color:#aaa;margin-top:3px">পাসওয়ার্ড: ${m.password}</div>
+          <div style="font-size:13px;color:var(--rose);font-weight:700;margin-top:7px">🔗 রেফারেল: <strong style="font-size:20px">${realCount}</strong> জন</div>
+          <div class="refbox" style="max-width:280px">${base}/?ref=${m.referral_code}</div>
+          <button class="copybtn" onclick="copyText('${base}/?ref=${m.referral_code}')">📋 কপি</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+          <button class="bsm ${m.is_banned?'bs':'bd'}" onclick="toggleBan('${m.id}',${m.is_banned})">${m.is_banned?'আনব্যান':'ব্যান করুন'}</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+async function toggleBan(id,cur){
+  await sb.from('wsep_moderators').update({is_banned:!cur}).eq('id',id);
+  toast(`মডারেটর ${!cur?'ব্যান':'আনব্যান'} করা হয়েছে`);loadMods();
+}
+function copyText(t){navigator.clipboard.writeText(t).then(()=>toast('কপি হয়েছে! 📋'));}
+
+// ─── TOAST ───
+function toast(m){const t=document.getElementById('atst');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3200);}
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('login-scr').style.display!=='none')doLogin();});
+</script>
+</body>
+</html>

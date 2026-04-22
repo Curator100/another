@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#c9184a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="WE, WOMAN">
+<meta name="description" content="আমরাই নারী, আমরাই পারি — নারী সুরক্ষা ও ক্ষমতায়ন প্রোগ্রাম">
+<title>WE, WOMAN — আমরাই নারী, আমরাই পারি</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="icon" type="image/png" href="/icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+:root{
+  --rose:#c9184a;--rose2:#e8174a;--rose3:#ff4d6d;--rose4:#ff85a1;--rose5:#ffb3c6;
+  --peach:#ffe0e8;--cream:#fff0f3;--deep:#800f2f;--mid:#a4133c;
+  --gold:#f4a261;--amber:#e76f51;
+  --glass:rgba(255,255,255,0.72);--gb:rgba(255,255,255,0.45);
+  --sh:0 8px 32px rgba(201,24,74,0.18);
+  --f:'Hind Siliguri','Arial Unicode MS',Arial,sans-serif;
+  --fd:'Playfair Display',serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow-x:hidden}
+body{font-family:var(--f);background:linear-gradient(160deg,#fff0f3 0%,#ffe0e8 30%,#ffb3c6 65%,#ff85a1 100%);min-height:100vh;position:relative}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 10%,rgba(244,162,97,.12) 0%,transparent 55%),radial-gradient(ellipse at 80% 90%,rgba(201,24,74,.1) 0%,transparent 55%);pointer-events:none;z-index:0}
+
+/* ───── LOADING ───── */
+#ls{position:fixed;inset:0;z-index:9999;background:linear-gradient(160deg,#fff0f3,#ffe0e8,#ffb3c6);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity .5s}
+.ll{width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,#c9184a,#ff4d6d);display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 14px rgba(201,24,74,.12),0 0 0 28px rgba(201,24,74,.06),0 12px 40px rgba(201,24,74,.4);animation:llp 2s ease-in-out infinite}
+@keyframes llp{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.ll-inner{text-align:center}
+.ll-we{font-family:var(--fd);font-size:18px;color:#fff;font-weight:900;line-height:1;letter-spacing:1px}
+.ll-w{font-size:9px;color:rgba(255,255,255,.8);font-weight:600;letter-spacing:2px;margin-top:1px}
+.lb{width:200px;height:3px;background:rgba(201,24,74,.15);border-radius:4px;overflow:hidden}
+.lbf{height:100%;background:linear-gradient(90deg,#c9184a,#ff85a1,#c9184a);background-size:200%;border-radius:4px;animation:lbfa 1.8s ease forwards}
+@keyframes lbfa{from{width:0}to{width:100%}}
+.ls-title{font-family:var(--fd);font-size:22px;font-weight:900;color:var(--mid);text-align:center;line-height:1.2}
+.ls-sub{font-size:12px;color:var(--rose);text-align:center;letter-spacing:.5px}
+
+/* ───── INSTALL BANNER (persistent until installed) ───── */
+#ib{position:fixed;top:0;left:0;right:0;z-index:1100;background:linear-gradient(135deg,#800f2f,#c9184a,#e8174a);padding:12px 14px 10px 14px;display:none;flex-direction:column;box-shadow:0 4px 20px rgba(128,15,47,.45)}
+#ib.show{display:flex}
+.ib-pulse{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.ib-dot{width:8px;height:8px;border-radius:50%;background:#fff;animation:pulse-dot 1.4s ease-in-out infinite}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.8)}}
+.ib-msg{color:#fff;font-size:13px;font-weight:600;line-height:1.5;flex:1}
+.ib-msg strong{display:block;font-size:14px;font-weight:700}
+.ib-actions{display:flex;gap:8px;align-items:center}
+.ib-install{background:#fff;color:var(--rose);border:none;padding:8px 18px;border-radius:22px;font-weight:800;font-size:13px;cursor:pointer;font-family:var(--f);box-shadow:0 4px 12px rgba(0,0,0,.15);flex-shrink:0}
+.ib-x{color:rgba(255,255,255,.7);background:none;border:none;font-size:24px;cursor:pointer;padding:0;line-height:1;flex-shrink:0}
+
+/* ───── AUTH ───── */
+#as{display:none;flex-direction:column;align-items:center;justify-content:flex-start;min-height:100vh;padding:16px;position:relative;z-index:1}
+.ah{text-align:center;margin-bottom:22px;padding-top:8px}
+.alo{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#c9184a,#ff4d6d);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;box-shadow:0 8px 28px rgba(201,24,74,.35)}
+.alo-inner{text-align:center}
+.alo-we{font-family:var(--fd);font-size:16px;color:#fff;font-weight:900;line-height:1}
+.alo-w{font-size:7px;color:rgba(255,255,255,.85);font-weight:600;letter-spacing:2px}
+.at{font-family:var(--fd);font-size:22px;font-weight:900;color:var(--deep);line-height:1.25}
+.ast{font-size:13px;color:var(--rose);margin-top:4px;font-weight:500}
+
+.pwa-install-hero{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:14px;background:linear-gradient(135deg,rgba(201,24,74,.08),rgba(244,162,97,.08));border:1.5px solid rgba(201,24,74,.2);border-radius:16px;padding:14px 20px}
+.pwa-install-hero p{font-size:12px;color:var(--mid);text-align:center;line-height:1.5}
+.pwa-install-btn{background:linear-gradient(135deg,#c9184a,#ff4d6d);color:#fff;border:none;padding:10px 24px;border-radius:22px;font-family:var(--f);font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 6px 18px rgba(201,24,74,.35);display:flex;align-items:center;gap:7px;animation:btnpulse 2.5s ease-in-out infinite}
+@keyframes btnpulse{0%,100%{box-shadow:0 6px 18px rgba(201,24,74,.35)}50%{box-shadow:0 6px 24px rgba(201,24,74,.55)}}
+.pwa-install-btn:active{transform:scale(.96)}
+
+.gc{background:var(--glass);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid var(--gb);border-radius:24px;padding:24px 20px;width:100%;max-width:420px;box-shadow:var(--sh)}
+.tsw{display:flex;gap:4px;background:rgba(201,24,74,.08);border-radius:14px;padding:4px;margin-bottom:18px}
+.tb{flex:1;padding:9px;border:none;border-radius:10px;background:transparent;font-family:var(--f);font-size:13px;font-weight:600;color:var(--rose2);cursor:pointer;transition:all .2s}
+.tb.active{background:#fff;color:var(--deep);box-shadow:0 2px 10px rgba(201,24,74,.18)}
+.fg{margin-bottom:12px}
+.fl{display:block;font-size:11px;font-weight:700;color:var(--mid);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.fi{width:100%;padding:11px 14px;border:1.5px solid rgba(201,24,74,.18);border-radius:12px;background:rgba(255,255,255,.88);font-family:var(--f);font-size:14px;color:#333;outline:none;transition:border-color .2s,box-shadow .2s;-webkit-appearance:none}
+.fi:focus{border-color:var(--rose3);box-shadow:0 0 0 3px rgba(255,77,109,.12)}
+.fi::placeholder{color:#ccc}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.bp{width:100%;padding:13px;background:linear-gradient(135deg,#c9184a,#ff4d6d);color:#fff;border:none;border-radius:14px;font-family:var(--f);font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(201,24,74,.32);transition:transform .15s,opacity .15s;margin-top:6px}
+.bp:active{transform:scale(.97)}
+.bp:disabled{opacity:.6;cursor:not-allowed}
+.em{background:#ffe0e8;border:1px solid #ff85a1;color:var(--rose);padding:10px 13px;border-radius:10px;font-size:13px;margin-bottom:10px;display:none;line-height:1.5}
+.fn{font-size:11px;color:#aaa;text-align:center;margin-top:10px;line-height:1.5}
+
+/* ───── APP ───── */
+#app{display:none;min-height:100vh;padding-bottom:74px;position:relative;z-index:1}
+
+/* Header */
+.hd{background:rgba(255,240,243,0.82);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid rgba(201,24,74,.12);padding:12px 16px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between}
+.hbr{display:flex;align-items:center;gap:10px}
+.hlo{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#c9184a,#ff4d6d);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(201,24,74,.3)}
+.hlo-inner{text-align:center}
+.hlo-we{font-family:var(--fd);font-size:9px;color:#fff;font-weight:900;line-height:1}
+.hlo-w{font-size:5px;color:rgba(255,255,255,.8);font-weight:600;letter-spacing:1px}
+.ht{font-family:var(--fd);font-size:14px;font-weight:900;color:var(--deep)}
+.hs{font-size:10px;color:var(--rose);font-weight:500}
+.hu{font-size:10px;color:#888;text-align:right}
+.hu strong{color:var(--mid);display:block;font-size:12px;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
+.lob{background:rgba(201,24,74,.08);border:none;color:var(--rose);padding:5px 10px;border-radius:8px;font-family:var(--f);font-size:10px;cursor:pointer;margin-top:3px;font-weight:600}
+
+/* Bottom Nav */
+.bn{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(255,240,243,0.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid rgba(201,24,74,.12);display:flex;padding:6px 0 max(6px,env(safe-area-inset-bottom))}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px;cursor:pointer;position:relative}
+.nio{font-size:22px;transition:transform .2s}
+.nil{font-size:9px;font-weight:700;color:#bbb;transition:color .2s;letter-spacing:.3px}
+.ni.active .nio{transform:scale(1.15)}
+.ni.active .nil{color:var(--rose)}
+.ni.active::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:24px;height:3px;background:var(--rose2);border-radius:2px}
+
+/* Pages */
+.pg{display:none;padding:16px}
+.pg.active{display:block;animation:fadein .28s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* Back row */
+.bkrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.bkbtn{background:rgba(201,24,74,.08);border:1.5px solid rgba(201,24,74,.15);border-radius:10px;padding:7px 13px;font-family:var(--f);font-size:12px;font-weight:700;color:var(--rose);cursor:pointer;display:flex;align-items:center;gap:4px;transition:background .15s}
+.bkbtn:active{background:rgba(201,24,74,.18)}
+
+/* ─── SOS ─── */
+.soss{display:flex;flex-direction:column;align-items:center;padding:28px 0 18px}
+.sos-ring{position:relative;display:flex;align-items:center;justify-content:center}
+.sosb{width:160px;height:160px;border-radius:50%;background:linear-gradient(145deg,#a4133c 0%,#c9184a 45%,#e8174a 100%);border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 0 0 12px rgba(201,24,74,.14),0 0 0 26px rgba(201,24,74,.07),0 14px 44px rgba(164,19,60,.48);animation:sosp 2.8s ease-in-out infinite;-webkit-tap-highlight-color:transparent;gap:2px}
+@keyframes sosp{0%,100%{box-shadow:0 0 0 12px rgba(201,24,74,.14),0 0 0 26px rgba(201,24,74,.07),0 14px 44px rgba(164,19,60,.48)}50%{box-shadow:0 0 0 18px rgba(201,24,74,.18),0 0 0 36px rgba(201,24,74,.09),0 14px 56px rgba(164,19,60,.58)}}
+.sosb:active{transform:scale(.91)}
+.sost{font-size:42px;font-weight:900;color:#fff;letter-spacing:3px;font-family:var(--fd)}
+.sos-sub{font-size:9px;color:rgba(255,255,255,.85);font-weight:700;letter-spacing:2px}
+.sosd{margin-top:18px;background:rgba(255,255,255,.75);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(201,24,74,.15);border-radius:16px;padding:14px 18px;font-size:13px;color:var(--mid);text-align:center;line-height:1.7;max-width:310px}
+.sosd em{color:var(--rose);font-style:normal;font-weight:600}
+
+/* ─── HOME INFO CARDS ─── */
+.igr{display:grid;gap:14px;margin-top:20px}
+.ic{background:var(--glass);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(201,24,74,.12);border-radius:20px;padding:0;box-shadow:0 6px 24px rgba(201,24,74,.1);overflow:hidden;position:relative}
+.ic::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;border-radius:20px 20px 0 0}
+.ic:nth-child(1)::before{background:linear-gradient(90deg,#c9184a,#ff4d6d)}
+.ic:nth-child(2)::before{background:linear-gradient(90deg,#800f2f,#c9184a)}
+.ic:nth-child(3)::before{background:linear-gradient(90deg,#f4a261,#e76f51)}
+.ic-body{padding:20px 18px}
+.ic-top{display:flex;align-items:flex-start;gap:14px;margin-bottom:12px}
+.ici{font-size:32px;flex-shrink:0;line-height:1}
+.ic-texts{flex:1}
+.ict{font-size:17px;font-weight:800;color:var(--deep);margin-bottom:8px;line-height:1.3;font-family:var(--fd)}
+.icb{font-size:13px;color:#555;line-height:1.8;max-height:5.4em;overflow:hidden;transition:max-height .5s ease}
+.icb.expanded{max-height:999px}
+.ic-readmore{margin-top:10px}
+.rm-btn{background:none;border:none;color:var(--rose2);font-family:var(--f);font-size:12px;font-weight:700;cursor:pointer;padding:4px 0;display:flex;align-items:center;gap:4px}
+.rm-btn:active{opacity:.7}
+
+/* ─── JOBS ─── */
+.tc{background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(201,24,74,.12);border-radius:18px;padding:16px;margin-bottom:13px;box-shadow:0 4px 16px rgba(201,24,74,.08);transition:transform .15s}
+.tc:active{transform:scale(.99)}
+.tl{font-size:15px;font-weight:800;color:var(--deep);line-height:1.3}
+.tsal{background:linear-gradient(135deg,#c9184a,#ff4d6d);color:#fff;padding:4px 11px;border-radius:18px;font-size:12px;font-weight:800;white-space:nowrap;box-shadow:0 3px 8px rgba(201,24,74,.3)}
+
+/* Keyword list */
+.kw-list{display:flex;flex-direction:column;gap:0;margin-bottom:12px;border:1px solid rgba(201,24,74,.1);border-radius:12px;overflow:hidden}
+.kw-row{display:flex;align-items:center;gap:8px;padding:8px 11px;border-bottom:1px solid rgba(201,24,74,.06);background:rgba(255,255,255,.45)}
+.kw-row:last-child{border-bottom:none}
+.kw-num{width:18px;height:18px;border-radius:50%;background:rgba(201,24,74,.1);color:var(--rose);font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.kw-icon{font-size:14px;flex-shrink:0;width:20px;text-align:center}
+.kw-label{font-size:11px;font-weight:700;color:var(--mid);flex-shrink:0;width:110px}
+.kw-val{font-size:12px;color:#444;font-weight:500;flex:1}
+
+.tg{background:rgba(201,24,74,.07);color:var(--rose);padding:4px 10px;border-radius:8px;font-size:11px;font-weight:600;border:1px solid rgba(201,24,74,.1)}
+.tn{font-size:12px;color:#666;margin-bottom:10px;line-height:1.6;padding:8px 10px;background:rgba(255,255,255,.5);border-radius:8px;border-left:3px solid var(--rose5)}
+.job-actions{display:flex;gap:8px;margin-top:2px}
+.apb{flex:1;padding:11px;background:linear-gradient(135deg,#c9184a,#ff4d6d);color:#fff;border:none;border-radius:11px;font-family:var(--f);font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(201,24,74,.28);transition:transform .15s,opacity .15s}
+.apb:active{transform:scale(.97)}
+.apb-done{background:linear-gradient(135deg,#e8f5e9,#c8e6c9)!important;color:#2e7d32!important;cursor:default!important;font-weight:700!important;box-shadow:none!important;border:1.5px solid rgba(46,125,50,.2)!important}
+.share-btn{padding:11px 14px;background:linear-gradient(135deg,#f4a261,#e76f51);color:#fff;border:none;border-radius:11px;font-family:var(--f);font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(231,111,81,.28);white-space:nowrap;flex-shrink:0}
+.share-btn:active{transform:scale(.97)}
+
+/* Skeleton */
+.skc{background:rgba(255,180,200,.2);border-radius:18px;padding:16px;margin-bottom:13px}
+.skl{height:12px;border-radius:6px;margin-bottom:8px;animation:sk 1.4s infinite}
+@keyframes sk{0%{background:linear-gradient(90deg,#ffb3c6 25%,#ff85a1 50%,#ffb3c6 75%);background-size:200%;background-position:200% 0}100%{background:linear-gradient(90deg,#ffb3c6 25%,#ff85a1 50%,#ffb3c6 75%);background-size:200%;background-position:-200% 0}}
+
+/* ─── CONTACT ─── */
+.coc{background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(201,24,74,.12);border-radius:22px;padding:28px 20px;text-align:center}
+.coi{font-size:54px;margin-bottom:14px}
+.cot{font-family:var(--fd);font-size:20px;font-weight:900;color:var(--deep);margin-bottom:8px}
+.cob{font-size:13px;color:#555;line-height:1.8;margin-bottom:22px}
+.wab{display:flex;align-items:center;justify-content:center;gap:9px;padding:14px 22px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none;border-radius:14px;font-family:var(--f);font-size:15px;font-weight:800;cursor:pointer;text-decoration:none;box-shadow:0 6px 20px rgba(37,211,102,.32)}
+
+/* ─── SAFETY PAGE ─── */
+.sp-hero{text-align:center;padding:22px 0 18px}
+.sp-hero-title{font-family:var(--fd);font-size:22px;font-weight:900;color:var(--deep);line-height:1.3;margin-bottom:6px}
+.sp-hero-sub{font-size:13px;color:var(--rose);font-weight:500}
+.safety-card{background:var(--glass);backdrop-filter:blur(14px);border:1px solid rgba(201,24,74,.12);border-radius:20px;margin-bottom:14px;overflow:hidden}
+.sc-header{padding:16px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(201,24,74,.08)}
+.sc-icon{font-size:26px;flex-shrink:0}
+.sc-title{font-size:15px;font-weight:800;color:var(--deep);font-family:var(--fd)}
+.sc-body{padding:16px 18px}
+.sc-body p{font-size:13px;color:#555;line-height:1.85;margin-bottom:10px}
+.sc-body p:last-child{margin-bottom:0}
+.sc-body strong{color:var(--mid);font-weight:700}
+.sc-tips{list-style:none;display:flex;flex-direction:column;gap:9px;margin-top:6px}
+.sc-tips li{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:#555;line-height:1.7}
+.sc-tips li::before{content:'🌸';flex-shrink:0;margin-top:1px}
+
+/* ─── MODALS ─── */
+.mo{position:fixed;inset:0;z-index:500;background:rgba(128,15,47,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.mo.open{opacity:1;pointer-events:all}
+.ms{background:linear-gradient(155deg,#fff0f3,#ffe0e8 60%,#fff0f3);border-radius:26px 26px 0 0;padding:22px 20px 36px;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;transform:translateY(100%);transition:transform .38s cubic-bezier(.34,1.56,.64,1)}
+.mo.open .ms{transform:translateY(0)}
+.mdg{width:36px;height:4px;background:rgba(201,24,74,.2);border-radius:4px;margin:0 auto 18px}
+.mrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.mt{font-size:17px;font-weight:800;color:var(--deep);font-family:var(--fd)}
+.mclose{background:rgba(201,24,74,.08);border:none;font-size:18px;cursor:pointer;color:var(--rose);padding:5px 8px;line-height:1;border-radius:8px}
+.mb{font-size:13px;color:#555;line-height:1.8;margin-bottom:14px}
+.mh{background:linear-gradient(135deg,rgba(201,24,74,.06),rgba(244,162,97,.06));border-left:3px solid var(--rose3);padding:11px 14px;border-radius:0 10px 10px 0;margin:10px 0;font-size:13px;color:var(--mid);line-height:1.7}
+.mac{display:flex;gap:10px}
+.byes{flex:1;padding:12px;background:linear-gradient(135deg,#c9184a,#ff4d6d);color:#fff;border:none;border-radius:12px;font-family:var(--f);font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(201,24,74,.3)}
+.bno{flex:1;padding:12px;background:rgba(201,24,74,.08);color:var(--rose);border:1px solid rgba(201,24,74,.15);border-radius:12px;font-family:var(--f);font-size:14px;font-weight:600;cursor:pointer}
+.msucc{text-align:center;padding:10px 0}
+.msico{font-size:48px;margin-bottom:12px}
+
+/* Share gift modal */
+.share-gift-box{background:linear-gradient(135deg,rgba(244,162,97,.1),rgba(231,111,81,.1));border:1.5px solid rgba(244,162,97,.3);border-radius:14px;padding:16px;margin:12px 0;text-align:center}
+.share-gift-box .gift-icon{font-size:42px;margin-bottom:8px}
+.share-gift-box p{font-size:13px;color:#555;line-height:1.7;margin-bottom:12px}
+.share-options{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:4px}
+.soc-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 16px;border-radius:14px;border:none;cursor:pointer;font-family:var(--f);font-size:11px;font-weight:700;transition:transform .15s}
+.soc-btn:active{transform:scale(.93)}
+.soc-btn span{font-size:26px;line-height:1}
+.btn-wa{background:#e7f9ef;color:#128C7E}
+.btn-fb{background:#e8eef8;color:#1877f2}
+.btn-copy{background:rgba(201,24,74,.08);color:var(--rose)}
+
+/* SOS confirm */
+.soo{position:fixed;inset:0;z-index:600;background:rgba(128,15,47,.7);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .3s}
+.soo.open{opacity:1;pointer-events:all}
+.soc-box{background:#fff;border-radius:22px;padding:28px 22px;width:100%;max-width:320px;text-align:center;transform:scale(.82);transition:transform .32s cubic-bezier(.34,1.56,.64,1);box-shadow:0 24px 60px rgba(128,15,47,.35)}
+.soo.open .soc-box{transform:scale(1)}
+
+/* Toast */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(16px);background:linear-gradient(135deg,#c9184a,#800f2f);color:#fff;padding:11px 22px;border-radius:28px;font-size:13px;font-weight:700;z-index:999;opacity:0;transition:all .3s;white-space:nowrap;box-shadow:0 8px 26px rgba(201,24,74,.42);pointer-events:none;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Offsets */
+.ib-pad{padding-top:82px!important}
+.ib-hd-offset{top:82px!important}
+
+/* Section page title */
+.pg-title{font-family:var(--fd);font-size:20px;font-weight:900;color:var(--deep)}
+.pg-sub{font-size:12px;color:var(--rose);font-weight:500;margin-top:2px}
+</style>
+</head>
+<body>
+
+<!-- Loading -->
+<div id="ls">
+  <div class="ll"><div class="ll-inner"><div class="ll-we">WE,</div><div class="ll-w">WOMAN</div></div></div>
+  <div>
+    <div class="ls-title">আমরাই নারী, আমরাই পারি</div>
+    <div class="ls-sub">নারী সুরক্ষা ও ক্ষমতায়ন প্রোগ্রাম</div>
+  </div>
+  <div class="lb"><div class="lbf"></div></div>
+</div>
+
+<!-- Install Banner (persistent until installed) -->
+<div id="ib">
+  <div class="ib-pulse">
+    <div class="ib-dot"></div>
+    <div class="ib-msg">
+      <strong>রাস্তা-ঘাটে আপনার সুরক্ষা ও জীবনে আর্থিক উন্নতির জন্য অ্যাপটি ইনস্টল করুন, এখনই</strong>
+      প্রতিটি মুহূর্তে নিরাপদ থাকুন — ইনস্টল করুন ও সাথে রাখুন
+    </div>
+  </div>
+  <div class="ib-actions">
+    <button class="ib-install" id="ib-btn">📲 ইনস্টল করুন</button>
+    <button class="ib-x" id="ib-x">✕</button>
+  </div>
+</div>
+
+<!-- Auth Screen -->
+<div id="as">
+  <div class="ah">
+    <div class="alo"><div class="alo-inner"><div class="alo-we">WE,</div><div class="alo-w">WOMAN</div></div></div>
+    <div class="at">আমরাই নারী, আমরাই পারি</div>
+    <div class="ast">Women Safety & Empowerment Program</div>
+    <div class="pwa-install-hero" id="auth-install-box">
+      <p>🌸 <strong>রাস্তা-ঘাটে আপনার সুরক্ষা ও জীবনে আর্থিক উন্নতির জন্য</strong><br>অ্যাপটি ইনস্টল করুন, এখনই</p>
+      <button class="pwa-install-btn" id="auth-install-btn">📲 এখনই অ্যাপ ডাউনলোড করুন</button>
+    </div>
+  </div>
+  <div class="gc">
+    <div class="tsw">
+      <button class="tb active" onclick="switchTab('login')">লগইন</button>
+      <button class="tb" onclick="switchTab('register')">নিবন্ধন</button>
+    </div>
+    <div id="em" class="em"></div>
+    <div id="lf">
+      <div class="fg"><label class="fl">ইমেইল</label><input type="email" id="le" class="fi" placeholder="আপনার ইমেইল ঠিকানা"></div>
+      <div class="fg"><label class="fl">WhatsApp নম্বর (পাসওয়ার্ড)</label><input type="tel" id="lp" class="fi" placeholder="01XXXXXXXXX"></div>
+      <button class="bp" id="lbtn" onclick="doLogin()">লগইন করুন →</button>
+    </div>
+    <div id="rf" style="display:none">
+      <div class="fg"><label class="fl">পূর্ণ নাম *</label><input type="text" id="rn" class="fi" placeholder="আপনার পূর্ণ নাম"></div>
+      <div class="fr2">
+        <div class="fg"><label class="fl">WhatsApp *</label><input type="tel" id="rw" class="fi" placeholder="01XXXXXXXXX"></div>
+        <div class="fg"><label class="fl">অভিভাবকের নম্বর *</label><input type="tel" id="rpar" class="fi" placeholder="01XXXXXXXXX"></div>
+      </div>
+      <div class="fg"><label class="fl">ইমেইল *</label><input type="email" id="rem" class="fi" placeholder="আপনার ইমেইল"></div>
+      <div class="fr2">
+        <div class="fg"><label class="fl">বিশ্ববিদ্যালয়/কলেজ *</label><input type="text" id="ru" class="fi" placeholder="প্রতিষ্ঠানের নাম"></div>
+        <div class="fg"><label class="fl">বর্ষ *</label><input type="text" id="ry" class="fi" placeholder="১ম বর্ষ"></div>
+      </div>
+      <div class="fg"><label class="fl">জরুরি যোগাযোগ (বিশ্ববিদ্যালয়ের বন্ধু) *</label><input type="tel" id="rec" class="fi" placeholder="বিশ্বস্ত বন্ধুর নম্বর"></div>
+      <button class="bp" id="rbtn" onclick="doRegister()">নিবন্ধন করুন →</button>
+      <div class="fn">নিবন্ধন করলে আপনি আমাদের শর্তাবলিতে সম্মত হচ্ছেন</div>
+    </div>
+  </div>
+</div>
+
+<!-- App -->
+<div id="app">
+  <div class="hd" id="apphd">
+    <div class="hbr">
+      <div class="hlo"><div class="hlo-inner"><div class="hlo-we">WE,</div><div class="hlo-w">WOMAN</div></div></div>
+      <div><div class="ht">WE, WOMAN</div><div class="hs">আমরাই নারী, আমরাই পারি</div></div>
+    </div>
+    <div class="hu">
+      <strong id="uname">—</strong>
+      <button class="lob" onclick="doLogout()">লগআউট</button>
+    </div>
+  </div>
+
+  <!-- Home -->
+  <div id="ph" class="pg active">
+    <div class="soss">
+      <div class="sos-ring">
+        <button class="sosb" onclick="trigSOS()">
+          <span class="sost">SOS</span>
+          <span class="sos-sub">EMERGENCY</span>
+        </button>
+      </div>
+      <div class="sosd">
+        আপনি যদি কোথাও বিপদে পড়েন — হয়রানি, আক্রমণ বা যেকোনো ভয়ের মুহূর্তে —<br>
+        এই বাটনে ক্লিক করুন, আমরা <strong>তাৎক্ষণিক ব্যবস্থা</strong> নেব।<br>
+        <em>তবে অপ্রয়োজনীয় ক্লিক করবেন না।</em>
+      </div>
+    </div>
+
+    <div class="igr">
+      <!-- Card 1 -->
+      <div class="ic">
+        <div class="ic-body">
+          <div class="ic-top">
+            <div class="ici">🛡️</div>
+            <div class="ic-texts">
+              <div class="ict">নারী সুরক্ষা ও ক্ষমতায়ন</div>
+              <div class="icb" id="icb1">বাংলাদেশের প্রতিটি নারী শক্তিমান। তবুও প্রতিদিন লক্ষ লক্ষ নারী পথে-ঘাটে, কর্মক্ষেত্রে, পরিবহনে নিরাপত্তাহীনতার মুখে পড়েন। আমরা জানি সেই ভয়ের অনুভূতি — একা পথ চলার উদ্বেগ, অপরিচিত পরিবেশে অসহায়ত্ব। <strong>WE, WOMAN</strong> প্রোগ্রাম তৈরি হয়েছে শুধু তোমার জন্য। আমরা বিশ্বাস করি — একজন নিরাপদ নারী মানেই একটি নিরাপদ পরিবার, একটি সুন্দর সমাজ। আমাদের SOS সিস্টেম, টিউশন-জব নেটওয়ার্ক এবং প্রশিক্ষিত দল সবসময় তোমার পাশে আছে। তুমি একা নও — আমরা আছি।</div>
+              <div class="ic-readmore"><button class="rm-btn" onclick="toggleRead('icb1',this)">আরও পড়ুন ↓</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="ic">
+        <div class="ic-body">
+          <div class="ic-top">
+            <div class="ici">⚡</div>
+            <div class="ic-texts">
+              <div class="ict">কীভাবে নিরাপদ থাকবেন</div>
+              <div class="icb" id="icb2">তোমার নিরাপত্তা তোমার হাতেই শুরু। <strong>রাস্তায় বের হওয়ার আগে</strong> সবসময় কাছের মানুষকে জানাও তুমি কোথায় যাচ্ছ। অপরিচিত মানুষের সাথে রাতে একা কোথাও যাবে না। বাহনে উঠলে নম্বর ছবি তুলে পাঠাও বিশ্বস্তজনকে। অস্বস্তি অনুভব করলে দ্রুত জনবহুল জায়গায় আসো। <strong>ঘরে</strong> — মূল দরজায় সন্ধ্যার পর একা থাকলে তালা দাও। অপরিচিত কাউকে ভেতরে আনবে না। মোবাইল সবসময় চার্জে রাখো। <strong>কর্মক্ষেত্রে</strong> — সহকর্মীকে বিশ্বাস করো, কিন্তু সীমানা মেনে চলো। অনুচিত কিছু হলে চুপ থাকবে না — প্রতিবাদ করো। এই অ্যাপের SOS বাটন তোমার সবচেয়ে বড় সুরক্ষা — মুহূর্তেই আমাদের দলকে জানাবে।</div>
+              <div class="ic-readmore"><button class="rm-btn" onclick="toggleRead('icb2',this)">আরও পড়ুন ↓</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="ic">
+        <div class="ic-body">
+          <div class="ic-top">
+            <div class="ici">💼</div>
+            <div class="ic-texts">
+              <div class="ict">আমরা কীভাবে সাহায্য করছি</div>
+              <div class="icb" id="icb3"><strong>WE, WOMAN</strong> শুধু একটি অ্যাপ নয় — এটি একটি আন্দোলন। আমরা বাংলাদেশের নারীদের দুটি মৌলিক অধিকার নিশ্চিত করতে চাই: নিরাপত্তা এবং আর্থিক স্বাধীনতা। আমাদের জব ও টিউশন পোর্টালে প্রতি সপ্তাহে নতুন সুযোগ আসে — সুরক্ষিত পরিবেশে, নির্ভরযোগ্য নিয়োগকর্তার কাছে। আমাদের মডারেটর দল প্রতিটি টিউশন ও চাকরি যাচাই করে তারপর পোস্ট করে। তুমি ইন্টারভিউ দেওয়ার আগেই আমরা তোমার নিরাপত্তা নিশ্চিত করি। <strong>আজ পর্যন্ত</strong> হাজারো নারী আমাদের মাধ্যমে স্বনির্ভর হয়েছেন — নিজের পায়ে দাঁড়িয়েছেন, পরিবারের মুখে হাসি ফুটিয়েছেন। পরের জন তুমি।</div>
+              <div class="ic-readmore"><button class="rm-btn" onclick="toggleRead('icb3',this)">আরও পড়ুন ↓</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Jobs -->
+  <div id="pj" class="pg">
+    <div class="bkrow">
+      <div><div class="pg-title">টিউশন ও চাকরি</div><div class="pg-sub">আপনার পছন্দের সুযোগ বেছে নিন</div></div>
+      <button class="bkbtn" onclick="navTo('home')">← হোম</button>
+    </div>
+    <div id="jlist"></div>
+  </div>
+
+  <!-- Safety -->
+  <div id="ps" class="pg">
+    <div class="sp-hero">
+      <div class="sp-hero-title">নারী সুরক্ষা গাইড</div>
+      <div class="sp-hero-sub">প্রতিটি মুহূর্তে নিজেকে সুরক্ষিত রাখুন</div>
+    </div>
+
+    <div class="safety-card">
+      <div class="sc-header"><div class="sc-icon">🩸</div><div class="sc-title">পিরিয়ড চলাকালীন সুরক্ষা</div></div>
+      <div class="sc-body">
+        <p>পিরিয়ডের সময় শরীর ও মন উভয়ই সংবেদনশীল থাকে। এই সময় নিজের যত্ন নেওয়া সবচেয়ে জরুরি।</p>
+        <ul class="sc-tips">
+          <li>পরিষ্কার ও মানসম্পন্ন স্যানিটারি প্যাড বা মেনস্ট্রুয়াল কাপ ব্যবহার করুন। প্রতি ৪-৬ ঘণ্টায় পরিবর্তন করুন।</li>
+          <li>পেটে তীব্র ব্যথা হলে গরম সেঁক নিন। পেইনকিলার খাওয়ার আগে ডাক্তারের পরামর্শ নিন।</li>
+          <li>বাইরে যাওয়ার সময় অতিরিক্ত প্যাড ব্যাগে রাখুন। হালকা রঙের পোশাক এড়িয়ে চলুন প্রয়োজনে।</li>
+          <li>হাইড্রেটেড থাকুন, পর্যাপ্ত পানি পান করুন। ক্যাফেইন কমিয়ে আনুন।</li>
+          <li>মুড সুইং স্বাভাবিক — নিজেকে দোষ দেবেন না। বিশ্রাম নিন, কারো সাথে কথা বলুন।</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="safety-card">
+      <div class="sc-header"><div class="sc-icon">🚶‍♀️</div><div class="sc-title">রাস্তায় নিরাপদ থাকুন</div></div>
+      <div class="sc-body">
+        <p><strong>পথচলায় সতর্কতাই সুরক্ষা।</strong> বাংলাদেশের পরিবেশে সচেতনভাবে চলাই সবচেয়ে বড় প্রতিরোধ।</p>
+        <ul class="sc-tips">
+          <li>একা রাতের পথে চলা যতটা সম্ভব এড়িয়ে চলুন। বের হতে হলে পরিচিত কাউকে সাথে নিন বা জানিয়ে যান।</li>
+          <li>রিকশা, অটো বা CNG-তে ওঠার আগে নম্বর প্লেট ছবি তুলে বিশ্বস্তজনকে পাঠান।</li>
+          <li>ইয়ারফোন দুই কানে দিয়ে রাস্তায় হাঁটবেন না — আশেপাশের পরিস্থিতি বুঝতে পারবেন না।</li>
+          <li>কেউ অনুসরণ করছে মনে হলে জনবহুল জায়গায় ঢুকুন। দোকান, হাসপাতাল বা পুলিশ বক্সে আশ্রয় নিন।</li>
+          <li>জরুরি: জাতীয় হেল্পলাইন <strong>999</strong> | নারী নির্যাতন হেল্পলাইন <strong>10921</strong></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="safety-card">
+      <div class="sc-header"><div class="sc-icon">🏠</div><div class="sc-title">ঘরে নিরাপদ থাকুন</div></div>
+      <div class="sc-body">
+        <p>ঘর মানেই সবচেয়ে নিরাপদ জায়গা — কিন্তু সচেতনতা ঘরেও জরুরি।</p>
+        <ul class="sc-tips">
+          <li>একা থাকলে দরজায় দুটি তালা ব্যবহার করুন। অপরিচিত কারো ডাকে দরজা খুলবেন না।</li>
+          <li>বাড়িওয়ালা বা প্রতিবেশীর সাথে সুসম্পর্ক রাখুন — বিপদে পাশে পাবেন।</li>
+          <li>গ্যাস, বৈদ্যুতিক যন্ত্রপাতি রাতে বন্ধ রাখুন। ফায়ার এক্সটিংগুইশার রাখুন কাছে।</li>
+          <li>মোবাইল সবসময় চার্জে রাখুন এবং জরুরি নম্বরগুলো সেভ করুন।</li>
+          <li>পারিবারিক সহিংসতার শিকার হলে চুপ থাকবেন না। <strong>10921</strong> নম্বরে কল করুন।</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="safety-card">
+      <div class="sc-header"><div class="sc-icon">🌐</div><div class="sc-title">অনলাইন নিরাপত্তা</div></div>
+      <div class="sc-body">
+        <p>ডিজিটাল যুগে অনলাইন হয়রানি একটি বড় সমস্যা। নিজেকে রক্ষা করুন।</p>
+        <ul class="sc-tips">
+          <li>সোশ্যাল মিডিয়ায় অপরিচিতদের সাথে ব্যক্তিগত তথ্য শেয়ার করবেন না।</li>
+          <li>অনুমতি ছাড়া কেউ আপনার ছবি বা তথ্য শেয়ার করলে অবিলম্বে রিপোর্ট করুন।</li>
+          <li>সাইবার বুলিং বা হয়রানির শিকার হলে প্রমাণ সংরক্ষণ করুন এবং পুলিশে অভিযোগ করুন।</li>
+          <li>অ্যাকাউন্টে দ্বি-স্তর যাচাইকরণ (2FA) সক্রিয় রাখুন।</li>
+          <li>সাইবার ক্রাইম হেল্পলাইন: <strong>01320-000-888</strong></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="safety-card">
+      <div class="sc-header"><div class="sc-icon">🧠</div><div class="sc-title">মানসিক স্বাস্থ্য ও সাহস</div></div>
+      <div class="sc-body">
+        <p>শারীরিক নিরাপত্তার মতোই মানসিক স্বাস্থ্য সমান গুরুত্বপূর্ণ।</p>
+        <ul class="sc-tips">
+          <li>কোনো ঘটনায় ট্রমায় ভুগলে বিশ্বস্ত কাউকে বলুন। একা বহন করবেন না।</li>
+          <li>সমাজের কথা ভেবে নিজেকে দোষ দেবেন না — অপরাধটি যার দোষ তার, আপনার নয়।</li>
+          <li>নিয়মিত ব্যায়াম, পর্যাপ্ত ঘুম ও সুষম খাবার মানসিক শক্তি দেয়।</li>
+          <li>কমিউনিটিতে যুক্ত থাকুন — বিচ্ছিন্নতাই সবচেয়ে বড় ঝুঁকি।</li>
+          <li>মনে রাখবেন: <em>তুমি যথেষ্ট শক্তিশালী। তুমি একা নও।</em></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contact -->
+  <div id="pc" class="pg">
+    <div class="bkrow">
+      <div class="pg-title">যোগাযোগ</div>
+      <button class="bkbtn" onclick="navTo('home')">← হোম</button>
+    </div>
+    <div class="coc">
+      <div class="coi">💬</div>
+      <div class="cot">আমাদের সাথে কথা বলুন</div>
+      <div class="cob">যেকোনো সমস্যা, জিজ্ঞাসা বা বিপদে — আমাদের WhatsApp-এ মেসেজ করুন। আমাদের দল <strong>সকাল ৯টা থেকে রাত ১০টা</strong> পর্যন্ত সক্রিয় থাকে। তোমার পাশে আছি আমরা।</div>
+      <a class="wab" href="https://wa.me/8801846156788" target="_blank">📱 WhatsApp-এ মেসেজ করুন</a>
+      <div style="margin-top:14px;font-size:12px;color:#aaa">+880 1846-156788 • সকাল ৯টা – রাত ১০টা</div>
+      <div style="margin-top:18px;padding-top:18px;border-top:1px solid rgba(201,24,74,.1)">
+        <div style="font-size:13px;color:var(--mid);font-weight:700;margin-bottom:6px">জরুরি নম্বর</div>
+        <div style="font-size:13px;color:#555;line-height:2">
+          🚔 পুলিশ হেল্পলাইন: <strong>999</strong><br>
+          👩 নারী নির্যাতন: <strong>10921</strong><br>
+          🌐 সাইবার ক্রাইম: <strong>01320-000-888</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="bn">
+    <div class="ni active" id="ni-home" onclick="navTo('home')"><span class="nio">🏠</span><span class="nil">হোম</span></div>
+    <div class="ni" id="ni-jobs" onclick="navTo('jobs')"><span class="nio">💼</span><span class="nil">টিউশন</span></div>
+    <div class="ni" id="ni-safety" onclick="navTo('safety')"><span class="nio">🛡️</span><span class="nil">সুরক্ষা</span></div>
+    <div class="ni" id="ni-contact" onclick="navTo('contact')"><span class="nio">📞</span><span class="nil">যোগাযোগ</span></div>
+  </nav>
+</div>
+
+<!-- SOS Confirm -->
+<div class="soo" id="soov">
+  <div class="soc-box">
+    <div style="font-size:44px;margin-bottom:10px">🚨</div>
+    <div style="font-size:18px;font-weight:800;color:var(--rose);margin-bottom:8px;font-family:var(--fd)">SOS পাঠাবেন?</div>
+    <div style="font-size:13px;color:#555;line-height:1.7;margin-bottom:20px">আপনি কি সত্যিই বিপদে আছেন? আমাদের টিম তাৎক্ষণিক ব্যবস্থা নেবে।</div>
+    <div style="display:flex;gap:10px">
+      <button class="bno" onclick="closeSOS()">না, বাতিল</button>
+      <button class="byes" id="sosconfbtn" onclick="sendSOS()">হ্যাঁ, পাঠান</button>
+    </div>
+    <div id="sos-send" style="display:none;color:var(--rose);font-weight:600;margin-top:10px;font-size:13px">পাঠানো হচ্ছে... ⏳</div>
+  </div>
+</div>
+
+<!-- Apply Modal -->
+<div class="mo" id="amod"><div class="ms"><div class="mdg"></div><div id="amod-c"></div></div></div>
+
+<!-- Share Gift Modal -->
+<div class="mo" id="sharemod"><div class="ms"><div class="mdg"></div><div id="sharemod-c"></div></div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SBU='https://lufglfdykmvrymlszbmw.supabase.co';
+const SBK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1ZmdsZmR5a212cnltbHN6Ym13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2OTcxNjYsImV4cCI6MjA5MjI3MzE2Nn0.sGk_QrQwNI3z_deWZOO3umjm6OKJ3q_iH6k1YELhCnk';
+const sb=supabase.createClient(SBU,SBK,{auth:{persistSession:false}});
+const BOT='7447671480:AAFtEWOh_y3k5UpIeUnV-5fJdV3L-RlqC6M';
+const CHAT='906269717';
+let user=null,curTuit=null,apStep=0,dp=null,ibDismissed=false,jobsCache=null,appliedSet=new Set(),isInstalled=false;
+
+// ─── PWA ───
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;if(!isInstalled)showIB();});
+window.addEventListener('appinstalled',()=>{isInstalled=true;hideIB();document.getElementById('auth-install-box').style.display='none';});
+
+function isStandalone(){return window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;}
+
+function showIB(){
+  if(ibDismissed||isInstalled||isStandalone())return;
+  document.getElementById('ib').classList.add('show');
+  applyIBOffset(true);
+}
+function hideIB(){document.getElementById('ib').classList.remove('show');applyIBOffset(false);}
+function applyIBOffset(on){
+  const h='82px';
+  document.getElementById('as').style.paddingTop=on?h:'16px';
+  document.getElementById('app').style.paddingTop=on?h:'0';
+  document.getElementById('apphd').style.top=on?h:'0';
+}
+
+async function trigInstall(){
+  if(dp){
+    dp.prompt();
+    const r=await dp.userChoice;
+    if(r.outcome==='accepted'){hideIB();isInstalled=true;}
+    dp=null;
+  } else {
+    showToast('Chrome মেনু > "Add to Home Screen" চাপুন 📲');
+  }
+}
+
+document.getElementById('ib-btn').onclick=trigInstall;
+document.getElementById('auth-install-btn').onclick=trigInstall;
+document.getElementById('ib-x').onclick=()=>{
+  ibDismissed=true;hideIB();
+  // Re-show after 2min if still not installed
+  setTimeout(()=>{ibDismissed=false;if(!isInstalled&&!isStandalone())showIB();},120000);
+};
+
+// ─── SW ───
+if('serviceWorker'in navigator){
+  navigator.serviceWorker.register('/sw.js').then(reg=>{
+    // Silent update check
+    reg.addEventListener('updatefound',()=>{
+      const nw=reg.installing;
+      nw.addEventListener('statechange',()=>{
+        if(nw.state==='installed'&&navigator.serviceWorker.controller){
+          // New version available — silent update, activate on next visit
+          nw.postMessage({type:'SKIP_WAITING'});
+        }
+      });
+    });
+  }).catch(()=>{});
+  // Reload when new SW takes over
+  let refreshing=false;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!refreshing){refreshing=true;window.location.reload();}});
+}
+
+// ─── Init ───
+window.addEventListener('load',async()=>{
+  if(isStandalone()){isInstalled=true;document.getElementById('auth-install-box').style.display='none';}
+
+  const failsafe=setTimeout(()=>{
+    const lel=document.getElementById('ls');
+    if(lel&&lel.style.display!=='none'){lel.style.opacity='0';setTimeout(()=>lel.style.display='none',400);}
+    const stored=localStorage.getItem('we_user');
+    if(stored){try{user=JSON.parse(stored);showApp();}catch{localStorage.removeItem('we_user');showAuth();}}else showAuth();
+  },5000);
+
+  const warmup=sb.from('wsep_tuitions').select('id,location,salary,class,note,medium,days,time_slot,version,serial_no').eq('status','available').eq('show_on_site',true).order('created_at',{ascending:false}).limit(50);
+  const urlp=new URLSearchParams(location.search);
+  const ref=urlp.get('ref');
+  if(ref)localStorage.setItem('wsep_referral',ref);
+
+  const[,wres]=await Promise.all([new Promise(r=>setTimeout(r,1100)),warmup.catch(()=>({data:null}))]);
+  clearTimeout(failsafe);
+  if(wres&&wres.data)jobsCache=wres.data;
+
+  const lel=document.getElementById('ls');
+  lel.style.opacity='0';setTimeout(()=>lel.style.display='none',400);
+
+  const stored=localStorage.getItem('we_user');
+  if(stored){try{user=JSON.parse(stored);showApp();}catch{localStorage.removeItem('we_user');showAuth();}}else showAuth();
+
+  if(!isInstalled&&!isStandalone())setTimeout(()=>showIB(),1000);
+});
+
+function showAuth(){document.getElementById('as').style.display='flex';document.getElementById('app').style.display='none';}
+function showApp(){
+  document.getElementById('as').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('uname').textContent=user.name;
+  if(!jobsCache)prefetchJobs();
+  if(user&&appliedSet.size===0)
+    sb.from('wsep_applications').select('tuition_id').eq('user_id',user.id)
+      .then(({data})=>{if(data){data.forEach(r=>appliedSet.add(r.tuition_id));if(jobsCache)renderJobs(jobsCache);}});
+}
+async function prefetchJobs(){
+  try{const{data}=await sb.from('wsep_tuitions').select('id,location,salary,class,note,medium,days,time_slot,version,serial_no').eq('status','available').eq('show_on_site',true).order('created_at',{ascending:false}).limit(50);if(data)jobsCache=data;}catch{}
+}
+
+// ─── Tabs / Auth ───
+function switchTab(t){
+  document.querySelectorAll('.tb').forEach((b,i)=>b.classList.toggle('active',(t==='login'&&i===0)||(t==='register'&&i===1)));
+  document.getElementById('lf').style.display=t==='login'?'block':'none';
+  document.getElementById('rf').style.display=t==='register'?'block':'none';
+  hideErr();
+}
+function showErr(m){const e=document.getElementById('em');e.textContent=m;e.style.display='block';}
+function hideErr(){document.getElementById('em').style.display='none';}
+
+async function doLogin(){
+  const email=document.getElementById('le').value.trim();
+  const pass=document.getElementById('lp').value.trim();
+  if(!email||!pass)return showErr('ইমেইল ও WhatsApp নম্বর দিন');
+  const btn=document.getElementById('lbtn');btn.disabled=true;btn.textContent='যাচাই হচ্ছে...';
+  try{
+    const{data,error}=await sb.from('wsep_users').select('*').eq('email',email).eq('whatsapp',pass).maybeSingle();
+    if(error)throw error;
+    if(!data)showErr('ইমেইল বা নম্বর সঠিক নয়');
+    else{user=data;localStorage.setItem('we_user',JSON.stringify(data));showApp();}
+  }catch(e){showErr('সংযোগ সমস্যা: '+e.message);}
+  btn.disabled=false;btn.textContent='লগইন করুন →';
+}
+
+async function doRegister(){
+  const name=document.getElementById('rn').value.trim();
+  const wa=document.getElementById('rw').value.trim();
+  const email=document.getElementById('rem').value.trim();
+  const uni=document.getElementById('ru').value.trim();
+  const yr=document.getElementById('ry').value.trim();
+  const par=document.getElementById('rpar').value.trim();
+  const ec=document.getElementById('rec').value.trim();
+  if(!name||!wa||!email||!uni||!yr||!par||!ec)return showErr('সব তথ্য পূরণ করুন');
+  if(!/^01[3-9]\d{8}$/.test(wa))return showErr('সঠিক WhatsApp নম্বর দিন (01X দিয়ে শুরু, ১১ ডিজিট)');
+  const btn=document.getElementById('rbtn');btn.disabled=true;btn.textContent='নিবন্ধন হচ্ছে...';hideErr();
+  const refCode=localStorage.getItem('wsep_referral')||null;
+  try{
+    const{data:existing}=await sb.from('wsep_users').select('id').eq('email',email).maybeSingle();
+    if(existing){showErr('এই ইমেইল দিয়ে আগেই নিবন্ধন হয়েছে। লগইন করুন।');btn.disabled=false;btn.textContent='নিবন্ধন করুন →';return;}
+    const{data,error}=await sb.from('wsep_users').insert([{name,whatsapp:wa,email,university:uni,year:yr,parents_phone:par,emergency_contact:ec,referral_code:refCode}]).select('*').single();
+    if(error){
+      if(error.code==='23505')showErr('এই ইমেইল দিয়ে আগেই নিবন্ধন হয়েছে। লগইন করুন।');
+      else showErr('নিবন্ধন হয়নি। আবার চেষ্টা করুন।');
+      btn.disabled=false;btn.textContent='নিবন্ধন করুন →';return;
+    }
+    user=data;localStorage.setItem('we_user',JSON.stringify(data));
+    if(refCode){
+      localStorage.removeItem('wsep_referral');
+      sb.from('wsep_moderators').select('id,referral_count').eq('referral_code',refCode).maybeSingle()
+        .then(({data:mod})=>{if(mod)sb.from('wsep_moderators').update({referral_count:(mod.referral_count||0)+1}).eq('referral_code',refCode).then(()=>{});});
+    }
+    showApp();showToast('স্বাগতম '+name+'! নিবন্ধন সফল হয়েছে 🎉');
+  }catch(e){showErr('সংযোগ সমস্যা: '+e.message);btn.disabled=false;btn.textContent='নিবন্ধন করুন →';}
+}
+
+function doLogout(){user=null;localStorage.removeItem('we_user');showAuth();}
+
+// ─── Nav ───
+function navTo(pg){
+  const map={home:'ph',jobs:'pj',safety:'ps',contact:'pc'};
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  document.getElementById(map[pg]).classList.add('active');
+  const ni=document.getElementById('ni-'+pg);
+  if(ni)ni.classList.add('active');
+  if(pg==='jobs')loadJobs();
+}
+
+// ─── Jobs ───
+async function loadJobs(){
+  const list=document.getElementById('jlist');
+  if(jobsCache){renderJobs(jobsCache);return;}
+  if(user&&appliedSet.size===0)
+    sb.from('wsep_applications').select('tuition_id').eq('user_id',user.id)
+      .then(({data})=>{if(data)data.forEach(r=>appliedSet.add(r.tuition_id));});
+  list.innerHTML=Array(3).fill('').map(()=>`<div class="skc"><div style="display:flex;justify-content:space-between;margin-bottom:9px"><div class="skl" style="width:54%"></div><div class="skl" style="width:22%;border-radius:10px;height:22px;margin:0"></div></div><div class="skl" style="width:72%"></div><div class="skl" style="width:40%;margin-top:5px"></div><div class="skl" style="height:40px;border-radius:10px;margin-top:10px"></div></div>`).join('');
+  try{
+    const{data}=await sb.from('wsep_tuitions').select('id,location,salary,class,note,medium,days,time_slot,version,serial_no').eq('status','available').eq('show_on_site',true).order('created_at',{ascending:false}).limit(50);
+    jobsCache=data||[];renderJobs(jobsCache);
+  }catch{list.innerHTML='<div style="text-align:center;padding:40px;color:var(--rose)">লোড হয়নি। পুনরায় চেষ্টা করুন।</div>';}
+}
+
+function renderJobs(data){
+  const list=document.getElementById('jlist');
+  if(!data.length){list.innerHTML='<div style="text-align:center;padding:50px 0;color:var(--rose);font-size:14px">বর্তমানে কোনো টিউশন নেই। শীঘ্রই আসছে! 🌸</div>';return;}
+  list.innerHTML=data.map((t,i)=>{
+    const done=appliedSet.has(t.id);
+    const applyBtn=done
+      ? `<button class="apb apb-done" disabled>✓ আবেদন করা হয়েছে</button>`
+      : `<button class="apb" onclick="openApply('${t.id}',${t.salary},'${esc(t.location)}','${esc(t.class)}')">আবেদন করুন →</button>`;
+    // Build keyword rows
+    const kws=[
+      {icon:'📍',label:'লোকেশন',val:t.location},
+      {icon:'💰',label:'বেতন',val:t.salary?`৳${Number(t.salary).toLocaleString()}/মাস`:null},
+      {icon:'📚',label:'ক্লাস',val:t.class},
+      {icon:'📅',label:'দিন',val:t.days},
+      {icon:'⏰',label:'সময়',val:t.time_slot},
+      {icon:'🗣️',label:'ভার্সন / মিডিয়াম',val:t.version||t.medium},
+      {icon:'📝',label:'নোট',val:t.note},
+    ].filter(k=>k.val);
+    const serial=t.serial_no?`<span style="font-size:10px;color:#bbb;font-weight:600">#${t.serial_no}</span>`:'';
+    return `<div class="tc">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div class="tl">📍 ${t.location}</div>
+        <div style="display:flex;align-items:center;gap:7px">${serial}<div class="tsal">৳${Number(t.salary).toLocaleString()}/মাস</div></div>
+      </div>
+      <div class="kw-list">
+        ${kws.map((k,idx)=>`<div class="kw-row">
+          <span class="kw-num">${idx+1}</span>
+          <span class="kw-icon">${k.icon}</span>
+          <span class="kw-label">${k.label}</span>
+          <span class="kw-val">${k.val}</span>
+        </div>`).join('')}
+      </div>
+      <div class="job-actions">
+        ${applyBtn}
+        <button class="share-btn" onclick="openShareGift('${t.id}','${esc(t.location)}',${t.salary},'${esc(t.class)}','${esc(t.version||t.medium||'')}')">🎁 উপহার</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function esc(s){return(s||'').replace(/'/g,"\\'").replace(/"/g,'\\"');}
+
+// ─── Apply ───
+function openApply(id,salary,loc,cls){curTuit={id,salary,loc,cls};apStep=1;renderApply();document.getElementById('amod').classList.add('open');}
+function renderApply(){
+  const chg=Math.round(curTuit.salary*0.532),first=1000,rest=chg-1000;
+  const c=document.getElementById('amod-c');
+  if(apStep===1){
+    c.innerHTML=`<div class="mrow"><div class="mt">সার্ভিস চার্জ সম্পর্কে</div><button class="mclose" onclick="closeApply()">✕</button></div><div class="mb">আমরা আমাদের সার্ভিসটি সুন্দরভাবে পরিচালনার জন্য একটি এককালীন সার্ভিস চার্জ নিয়ে থাকি। যা হলো, প্রথম মাসের মোট সেলারির <strong>৫৩.২%</strong>।<br><br>আপনি কি এতে সম্মত?</div><div class="mh">💰 আপনার সার্ভিস চার্জ: <strong>৳${chg.toLocaleString()}</strong> (মোট সেলারির ৫৩.২%)</div><div class="mac"><button class="bno" onclick="closeApply()">না</button><button class="byes" onclick="apStep=2;renderApply()">হ্যাঁ, সম্মত</button></div>`;
+  }else if(apStep===2){
+    c.innerHTML=`<div class="mrow"><div class="mt">পেমেন্ট প্ল্যান</div><button class="mclose" onclick="closeApply()">✕</button></div><div class="mb">টিউশন কনফার্ম হওয়ার ৩ দিনের মধ্যে ৳${first.toLocaleString()} এবং বাকি ৳${rest.toLocaleString()} টাকা ১০ দিনের ভেতর দিতে পারবেন।</div><div class="mh">🔹 ১ম কিস্তি: ৳${first.toLocaleString()} (৩ দিনের মধ্যে)<br>🔹 বাকি: ৳${rest.toLocaleString()} (১০ দিনের মধ্যে)</div><div class="mac"><button class="bno" onclick="applyNo()">না</button><button class="byes" id="subbtn" onclick="submitApply()">হ্যাঁ, পারব</button></div>`;
+  }else if(apStep===3){
+    c.innerHTML=`<div class="msucc"><div class="msico">✅</div><div class="mt" style="text-align:center;margin-bottom:10px">আবেদন সফল!</div><p style="font-size:13px;color:#555;line-height:1.8">আপনি সিলেক্ট হলে দ্রুতই আমাদের এজেন্ট আপনার সাথে যোগাযোগ করবে।</p><button class="byes" style="width:100%;margin-top:18px" onclick="closeApply()">ঠিক আছে</button></div>`;
+  }
+}
+function applyNo(){document.getElementById('amod-c').innerHTML=`<div class="msucc"><div class="msico">😔</div><div class="mt" style="text-align:center;margin-bottom:10px">দুঃখিত</div><p style="font-size:13px;color:#555;line-height:1.8">বর্তমানে আমাদের সার্ভিস কন্টিনিউ করার জন্য সার্ভিস চার্জ বাধ্যতামূলক।</p><button class="bno" style="width:100%;margin-top:18px" onclick="closeApply()">বুঝেছি</button></div>`;}
+async function submitApply(){
+  const btn=document.getElementById('subbtn');
+  if(btn){btn.disabled=true;btn.textContent='পাঠানো হচ্ছে...';}
+  // Optimistic UI — mark applied immediately
+  appliedSet.add(curTuit.id);
+  apStep=3;renderApply();
+  // Re-render jobs list instantly without refresh
+  if(jobsCache)renderJobs(jobsCache);
+  // Then send to server in background
+  try{
+    await sb.from('wsep_applications').insert([{tuition_id:curTuit.id,user_id:user.id,user_name:user.name,user_phone:user.whatsapp,user_university:user.university,user_year:user.year,user_email:user.email,user_parents_phone:user.parents_phone,user_emergency_contact:user.emergency_contact,agreed_service_charge:true,agreed_payment_plan:true}]);
+  }catch{showToast('আবেদন সংরক্ষিত হয়নি, পরে আবার চেষ্টা করুন');}
+}
+function closeApply(){document.getElementById('amod').classList.remove('open');setTimeout(()=>{apStep=0;curTuit=null;},380);}
+document.getElementById('amod').addEventListener('click',e=>{if(e.target===document.getElementById('amod'))closeApply();});
+
+// ─── Share & Gift ───
+function openShareGift(id,loc,salary,cls,medium){
+  const shareText=`🌸 WE, WOMAN — টিউশন সুযোগ!\n\n📍 লোকেশন: ${loc}\n💰 বেতন: ৳${Number(salary).toLocaleString()}/মাস\n📚 ক্লাস: ${cls}\n🗣️ মিডিয়াম: ${medium}\n\nআবেদন করুন: ${location.origin}`;
+  const c=document.getElementById('sharemod-c');
+  c.innerHTML=`
+    <div class="mrow"><div class="mt">🎁 শেয়ার করুন ও উপহার পান</div><button class="mclose" onclick="closeShareMod()">✕</button></div>
+    <div class="share-gift-box">
+      <div class="gift-icon">🎁</div>
+      <p>আপনার রেফারেলে যদি আপনার কোনো বন্ধু এই জবটি পায়, তবে আপনি পাবেন আমাদের থেকে একটি <strong>গিফট ভাউচার</strong>। কারণ, <em>Sharing is Caring!</em> 💕</p>
+    </div>
+    <div class="mb" style="font-size:13px;color:#666;margin-top:4px">আপনার বন্ধুদের এই টিউশনের তথ্য শেয়ার করুন:</div>
+    <div class="share-options">
+      <button class="soc-btn btn-wa" onclick="shareWhatsApp(\`${shareText.replace(/`/g,'\\`')}\`)"><span>💬</span>WhatsApp</button>
+      <button class="soc-btn btn-fb" onclick="shareFacebook('${location.origin}')"><span>📘</span>Messenger</button>
+      <button class="soc-btn btn-copy" onclick="copyShareText(\`${shareText.replace(/`/g,'\\`')}\`)"><span>📋</span>কপি করুন</button>
+    </div>
+  `;
+  document.getElementById('sharemod').classList.add('open');
+}
+function closeShareMod(){document.getElementById('sharemod').classList.remove('open');}
+document.getElementById('sharemod').addEventListener('click',e=>{if(e.target===document.getElementById('sharemod'))closeShareMod();});
+function shareWhatsApp(text){window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');}
+function shareFacebook(url){window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(url),'_blank');}
+function copyShareText(text){navigator.clipboard.writeText(text).then(()=>showToast('টেক্সট কপি হয়েছে! 📋'));}
+
+// ─── SOS ───
+function trigSOS(){document.getElementById('soov').classList.add('open');}
+function closeSOS(){document.getElementById('soov').classList.remove('open');}
+async function sendSOS(){
+  const btn=document.getElementById('sosconfbtn');
+  btn.style.display='none';document.getElementById('sos-send').style.display='block';
+  const msg=`🚨 SOS ALERT — WE, WOMAN\n\n👤 নাম: ${user.name}\n📱 WhatsApp: ${user.whatsapp}\n🏫 প্রতিষ্ঠান: ${user.university} (${user.year})\n📞 অভিভাবক: ${user.parents_phone}\n🆘 জরুরি যোগাযোগ: ${user.emergency_contact}\n\n⏰ সময়: ${new Date().toLocaleString('bn-BD')}\n\n⚠️ এই ব্যক্তি বিপদে আছেন! দ্রুত যোগাযোগ করুন!`;
+  await Promise.allSettled([
+    fetch(`https://api.telegram.org/bot${BOT}/sendMessage`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:CHAT,text:msg})}),
+    sb.from('wsep_sos_logs').insert([{user_id:user.id,user_name:user.name,user_phone:user.whatsapp}])
+  ]);
+  document.getElementById('soov').classList.remove('open');
+  btn.style.display='block';document.getElementById('sos-send').style.display='none';
+  showToast('SOS পাঠানো হয়েছে! সাহায্য আসছে 🚨');
+}
+
+// ─── Read More ───
+function toggleRead(id,btn){
+  const el=document.getElementById(id);
+  const expanded=el.classList.toggle('expanded');
+  btn.textContent=expanded?'কম দেখুন ↑':'আরও পড়ুন ↓';
+}
+
+// ─── Toast ───
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3200);}
+
+// Enter key
+document.addEventListener('keydown',e=>{if(e.key==='Enter'){const lf=document.getElementById('lf');const rf=document.getElementById('rf');if(lf&&lf.style.display!=='none')doLogin();else if(rf&&rf.style.display!=='none')doRegister();}});
+</script>
+</body>
+</html>
