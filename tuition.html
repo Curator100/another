@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<meta name="theme-color" content="#c9184a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="WE WOMEN টিউশন">
+<title>WE WOMEN — টিউশন</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+:root{--rose:#c9184a;--rose2:#e8174a;--rose3:#ff4d6d;--rose4:#ff85a1;--rose5:#ffb3c6;--deep:#800f2f;--mid:#a4133c;--glass:rgba(255,255,255,0.72);--f:'Hind Siliguri','Arial Unicode MS',Arial,sans-serif;--fd:'Playfair Display',serif}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow-x:hidden}
+body{font-family:var(--f);background:linear-gradient(160deg,#fff0f3 0%,#ffe0e8 35%,#ffb3c6 70%,#ff85a1 100%);min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 10%,rgba(244,162,97,.12),transparent 55%),radial-gradient(ellipse at 80% 90%,rgba(201,24,74,.1),transparent 55%);pointer-events:none;z-index:0}
+
+/* LOADER */
+#ls{position:fixed;inset:0;z-index:9999;background:linear-gradient(160deg,#fff0f3,#ffe0e8,#ffb3c6);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity .5s}
+.ll{width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,#c9184a,#ff4d6d);display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 12px rgba(201,24,74,.12),0 8px 30px rgba(201,24,74,.4);animation:llp 2s ease-in-out infinite}
+@keyframes llp{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.ll-we{font-family:var(--fd);font-size:13px;color:#fff;font-weight:900;line-height:1;text-align:center}.ll-w{font-size:6px;color:rgba(255,255,255,.8);font-weight:600;letter-spacing:2px}
+.lb{width:180px;height:3px;background:rgba(201,24,74,.15);border-radius:4px;overflow:hidden}
+.lbf{height:100%;background:linear-gradient(90deg,#c9184a,#ff85a1,#c9184a);background-size:200%;border-radius:4px;animation:lbfa 1.8s ease forwards}
+@keyframes lbfa{from{width:0}to{width:100%}}
+
+/* HEADER */
+.hd{background:rgba(255,240,243,.92);backdrop-filter:blur(24px);border-bottom:1px solid rgba(201,24,74,.12);padding:10px 13px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between}
+.hbr{display:flex;align-items:center;gap:9px}
+.hlo{width:33px;height:33px;border-radius:50%;background:linear-gradient(135deg,#c9184a,#ff4d6d);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.hlo-we{font-family:var(--fd);font-size:8px;color:#fff;font-weight:900;line-height:1;text-align:center}.hlo-w{font-size:5px;color:rgba(255,255,255,.8);font-weight:600;letter-spacing:1px}
+.ht{font-family:var(--fd);font-size:13px;font-weight:900;color:var(--deep)}.hs{font-size:9px;color:var(--rose);font-weight:500}
+.hd-right{display:flex;align-items:center;gap:7px}
+.home-btn{background:rgba(201,24,74,.08);border:none;color:var(--rose);padding:6px 11px;border-radius:9px;font-family:var(--f);font-size:11px;cursor:pointer;font-weight:700;text-decoration:none;display:inline-block}
+.lob{background:rgba(201,24,74,.08);border:none;color:var(--rose);padding:6px 9px;border-radius:7px;font-family:var(--f);font-size:10px;cursor:pointer;font-weight:600}
+.login-hd-btn{background:linear-gradient(135deg,#c9184a,#ff4d6d);color:#fff;border:none;padding:7px 13px;border-radius:10px;font-family:var(--f);font-size:12px;font-weight:700;cursor:pointer}
+
+/* MAIN */
+#main{padding:13px;padding-bottom:80px;position:relative;z-index:1}
+
+/* REFERRAL BANNER */
+.ref-banner{background:linear-gradient(135deg,#f97316,#fb923c,#fbbf24);border-radius:16px;padding:14px;margin-bottom:14px;color:#fff;box-shadow:0 6px 22px rgba(249,115,22,.3)}
+.ref-banner-title{font-family:var(--fd);font-size:14px;font-weight:900;margin-bottom:4px}
+.ref-banner-sub{font-size:12px;opacity:.92;line-height:1.6}
+
+/* ZONE FILTER TABS */
+.zone-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:13px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.zone-tabs::-webkit-scrollbar{display:none}
+.ztab{flex-shrink:0;padding:7px 14px;border:1.5px solid rgba(201,24,74,.18);border-radius:20px;font-size:12px;font-weight:700;color:var(--rose);background:rgba(255,255,255,.85);cursor:pointer;transition:all .18s;white-space:nowrap}
+.ztab.active{background:linear-gradient(135deg,#c9184a,#ff4d6d);color:#fff;border-color:transparent;box-shadow:0 3px 10px rgba(201,24,74,.3)}
+
+/* TUITION CARDS */
+.zone-section{margin-bottom:18px}
+.zone-hdr{display:flex;align-items:center;gap:8px;margin-bottom:9px;padding:7px 11px;border-radius:11px;font-size:13px;font-weight:800;color:#fff}
+.tc{backdrop-filter:blur(14px);border:1px solid rgba(201,24,74,.11);border-radius:15px;padding:13px;margin-bottom:11px;box-shadow:0 3px 13px rgba(201,24,74,.07)}
+.tc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;gap:6px}
+.tl{font-size:13px;font-weight:800;color:var(--deep);line-height:1.3;flex:1}
+.tc-serial{font-size:13px;font-weight:900;color:var(--mid);font-family:var(--fd);margin-right:3px}
+.tsal{background:linear-gradient(135deg,#c9184a,#ff4d6d);color:#fff;padding:3px 10px;border-radius:14px;font-size:12px;font-weight:800;white-space:nowrap}
+.kw-list{display:flex;flex-direction:column;border:1px solid rgba(201,24,74,.08);border-radius:9px;overflow:hidden;margin-bottom:9px}
+.kw-row{display:flex;align-items:center;gap:7px;padding:7px 9px;border-bottom:1px solid rgba(201,24,74,.05);background:rgba(255,255,255,.4)}
+.kw-row:last-child{border-bottom:none}
+.kw-icon{font-size:13px;flex-shrink:0;width:17px;text-align:center}
+.kw-label{font-size:10px;font-weight:700;color:var(--mid);flex-shrink:0;width:70px}
+.kw-val{font-size:12px;color:#444;font-weight:500;flex:1}
+.kw-val.bv{filter:blur(3.5px);color:#bbb;cursor:pointer;user-select:none}
+.job-actions{display:flex;gap:7px}
+.apb{flex:1;padding:9px;background:linear-gradient(135deg,#c9184a,#ff4d6d);color:#fff;border:none;border-radius:9px;font-family:var(--f);font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 3px 10px rgba(201,24,74,.24)}
+.apb:active{transform:scale(.97)}
+.apb-done{background:linear-gradient(135deg,#e8f5e9,#c8e6c9)!important;color:#2e7d32!important;cursor:default!important;box-shadow:none!important;border:1.5px solid rgba(46,125,50,.2)!important}
+.skc{background:rgba(255,180,200,.2);border-radius:15px;padding:13px;margin-bottom:11px}
+.skl{height:11px;border-radius:6px;margin-bottom:7px;animation:sk 1.4s infinite}
+@keyframes sk{0%{background:linear-gradient(90deg,#ffb3c6 25%,#ff85a1 50%,#ffb3c6 75%);background-size:200%;background-position:200% 0}100%{background:linear-gradient(90deg,#ffb3c6 25%,#ff85a1 50%,#ffb3c6 75%);background-size:200%;background-position:-200% 0}}
+
+/* APPLIED PIPELINE PAGE */
+#pipeline-page{display:none;padding:13px;padding-bottom:80px;position:relative;z-index:1}
+.pipeline-card{background:var(--glass);backdrop-filter:blur(14px);border:1px solid rgba(201,24,74,.11);border-radius:15px;padding:13px;margin-bottom:11px;box-shadow:0 3px 13px rgba(201,24,74,.07)}
+.pipeline-status{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;margin-bottom:7px}
+.status-pending{background:rgba(245,158,11,.12);color:#d97706}
+.status-confirmed{background:rgba(34,197,94,.12);color:#16a34a}
+.status-rejected{background:rgba(239,68,68,.12);color:#dc2626}
+
+/* BOTTOM NAV */
+.bn{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(255,240,243,.94);backdrop-filter:blur(24px);border-top:1px solid rgba(201,24,74,.12);display:flex;padding:5px 0 max(5px,env(safe-area-inset-bottom))}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:5px;cursor:pointer;position:relative}
+.nio{font-size:20px;transition:transform .2s}.nil{font-size:9px;font-weight:700;color:#bbb;transition:color .2s;letter-spacing:.3px}
+.ni.active .nio{transform:scale(1.12)}.ni.active .nil{color:var(--rose)}
+.ni.active::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:22px;height:3px;background:var(--rose2);border-radius:2px}
+
+/* MODALS */
+.mo{position:fixed;inset:0;z-index:500;background:rgba(128,15,47,.55);backdrop-filter:blur(10px);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.mo.open{opacity:1;pointer-events:all}
+.ms{background:linear-gradient(155deg,#fff0f3,#ffe0e8 60%,#fff0f3);border-radius:22px 22px 0 0;padding:19px 17px 32px;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;transform:translateY(100%);transition:transform .36s cubic-bezier(.34,1.56,.64,1)}
+.mo.open .ms{transform:translateY(0)}
+.mdg{width:32px;height:4px;background:rgba(201,24,74,.18);border-radius:4px;margin:0 auto 15px}
+.mrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.mt{font-size:15px;font-weight:800;color:var(--deep);font-family:var(--fd)}
+.mclose{background:rgba(201,24,74,.08);border:none;font-size:17px;cursor:pointer;color:var(--rose);padding:5px 8px;line-height:1;border-radius:7px}
+.mb{font-size:13px;color:#555;line-height:1.8;margin-bottom:12px}
+.mh{background:linear-gradient(135deg,rgba(201,24,74,.06),rgba(244,162,97,.06));border-left:3px solid var(--rose3);padding:10px 12px;border-radius:0 10px 10px 0;margin:8px 0;font-size:13px;color:var(--mid);line-height:1.7}
+.mac{display:flex;gap:8px}
+.byes{flex:1;padding:11px;background:linear-gradient(135deg,#c9184a,#ff4d6d);color:#fff;border:none;border-radius:11px;font-family:var(--f);font-size:13px;font-weight:700;cursor:pointer}
+.bno{flex:1;padding:11px;background:rgba(201,24,74,.07);color:var(--rose);border:1px solid rgba(201,24,74,.13);border-radius:11px;font-family:var(--f);font-size:13px;font-weight:600;cursor:pointer}
+.msucc{text-align:center;padding:8px 0}
+.msico{font-size:44px;margin-bottom:10px}
+.apq-opt{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.apq-btn{padding:7px 12px;border:1.5px solid rgba(201,24,74,.17);border-radius:9px;background:rgba(255,255,255,.8);font-family:var(--f);font-size:12px;font-weight:600;color:#555;cursor:pointer}
+.apq-btn.sel{background:rgba(201,24,74,.1);border-color:var(--rose);color:var(--rose);font-weight:700}
+.fg{margin-bottom:10px}
+.fl{display:block;font-size:10px;font-weight:700;color:var(--mid);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.fi{width:100%;padding:10px 12px;border:1.5px solid rgba(201,24,74,.16);border-radius:10px;background:rgba(255,255,255,.88);font-family:var(--f);font-size:14px;color:#333;outline:none;-webkit-appearance:none}
+.fi:focus{border-color:var(--rose3)}
+
+.toast{position:fixed;bottom:78px;left:50%;transform:translateX(-50%) translateY(13px);background:linear-gradient(135deg,#c9184a,#800f2f);color:#fff;padding:10px 19px;border-radius:24px;font-size:13px;font-weight:700;z-index:999;opacity:0;transition:all .3s;white-space:nowrap;box-shadow:0 6px 22px rgba(201,24,74,.38);pointer-events:none;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<div id="ls">
+  <div class="ll"><div><div class="ll-we">WE</div><div class="ll-w">WOMEN</div></div></div>
+  <div style="font-family:var(--fd);font-size:18px;font-weight:900;color:var(--mid)">টিউশন</div>
+  <div class="lb"><div class="lbf"></div></div>
+</div>
+
+<div class="hd">
+  <div class="hbr">
+    <div class="hlo"><div><div class="hlo-we">WE</div><div class="hlo-w">WOMEN</div></div></div>
+    <div><div class="ht">টিউশন</div><div class="hs">সেরা সুযোগ বেছে নিন</div></div>
+  </div>
+  <div class="hd-right">
+    <a href="index.html" class="home-btn">🏠 হোম</a>
+    <div id="hd-right"></div>
+  </div>
+</div>
+
+<!-- TUITIONS VIEW -->
+<div id="main">
+  <!-- Referral Banner -->
+  <div class="ref-banner">
+    <div class="ref-banner-title">🎁 রেফার করুন, পুরস্কার জিতুন!</div>
+    <div class="ref-banner-sub">যেকোনো টিউশনে আপনার যোগ্য ফ্রেন্ডদের রেফার করুন এবং জিতে নিন ক্যাশ গিফট বাউচার।</div>
+  </div>
+
+  <!-- Zone Filter Tabs -->
+  <div class="zone-tabs" id="zone-tabs">
+    <div class="ztab active" onclick="filterZone('all',this)">সব টিউশন</div>
+    <div class="ztab" onclick="filterZone('uttara',this)">উত্তরা</div>
+    <div class="ztab" onclick="filterZone('mirpur',this)">মিরপুর</div>
+    <div class="ztab" onclick="filterZone('mohammadpur',this)">মোহাম্মদপুর</div>
+    <div class="ztab" onclick="filterZone('badda',this)">বাড্ডা</div>
+    <div class="ztab" onclick="filterZone('motijheel',this)">মতিঝিল</div>
+  </div>
+
+  <div id="jlist"></div>
+</div>
+
+<!-- APPLIED PIPELINE VIEW -->
+<div id="pipeline-page">
+  <div style="font-family:var(--fd);font-size:17px;font-weight:900;color:var(--deep);margin-bottom:4px">📋 আবেদন পাইপলাইন</div>
+  <div style="font-size:12px;color:var(--rose);margin-bottom:14px;font-weight:600">সর্বশেষ আবেদন সবার উপরে</div>
+  <div id="pipeline-list"></div>
+</div>
+
+<nav class="bn">
+  <div class="ni active" id="ni-tuitions" onclick="showView('tuitions')"><span class="nio">📚</span><span class="nil">টিউশন</span></div>
+  <div class="ni" id="ni-pipeline" onclick="showView('pipeline')"><span class="nio">📋</span><span class="nil">আবেদন</span></div>
+</nav>
+
+<!-- APPLY MODAL -->
+<div class="mo" id="amod"><div class="ms"><div class="mdg"></div><div id="amod-c"></div></div></div>
+<!-- উপহার MODAL -->
+<div class="mo" id="umod"><div class="ms"><div class="mdg"></div><div id="umod-c"></div></div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SBU='https://lufglfdykmvrymlszbmw.supabase.co';
+const SBK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1ZmdsZmR5a212cnltbHN6Ym13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2OTcxNjYsImV4cCI6MjA5MjI3MzE2Nn0.sGk_QrQwNI3z_deWZOO3umjm6OKJ3q_iH6k1YELhCnk';
+const sb=supabase.createClient(SBU,SBK,{auth:{persistSession:false}});
+
+let user=null,jobsCache=null,appliedSet=new Set();
+let apStep=0,curTuit=null,apExtraQ={},hasAnsweredExtraQ=false,selQ1Val=null,selQ2Val=null;
+let currentZoneFilter='all';
+
+const ZONE_LABELS={'uttara':'উত্তরা','mirpur':'মিরপুর','mohammadpur':'মোহাম্মদপুর','badda':'বাড্ডা','motijheel':'মতিঝিল'};
+const ZONE_COLORS={
+  'uttara':['#c9184a','#e8174a'],
+  'mirpur':['#f97316','#ea580c'],
+  'mohammadpur':['#9333ea','#7c3aed'],
+  'badda':['#0891b2','#0e7490'],
+  'motijheel':['#16a34a','#15803d']
+};
+const ZONE_BG={
+  'uttara':'rgba(201,24,74,.06)',
+  'mirpur':'rgba(249,115,22,.06)',
+  'mohammadpur':'rgba(147,51,234,.06)',
+  'badda':'rgba(8,145,178,.06)',
+  'motijheel':'rgba(22,163,74,.06)'
+};
+
+const APP_LINK='https://wewomen.app/tuition.html';
+
+// ════ INIT ════
+window.addEventListener('load',async()=>{
+  const fl=setTimeout(()=>{hideLs();},5000);
+  await new Promise(r=>setTimeout(r,1000));
+  clearTimeout(fl);hideLs();
+  const s=localStorage.getItem('we_user');
+  if(s){try{user=JSON.parse(s);}catch{localStorage.removeItem('we_user');}}
+  if(user){
+    // Refresh balance
+    try{const{data}=await sb.from('wsep_users').select('*').eq('id',user.id).single();if(data){user=data;localStorage.setItem('we_user',JSON.stringify(data));}}catch{}
+    sb.from('wsep_applications').select('tuition_id').eq('user_id',user.id).then(({data})=>{if(data)data.forEach(r=>appliedSet.add(r.tuition_id));if(jobsCache)renderJobs(jobsCache);});
+    sb.from('wsep_applications').select('current_tuitions').eq('user_id',user.id).not('current_tuitions','is',null).limit(1).then(({data})=>{if(data&&data.length)hasAnsweredExtraQ=true;});
+  }
+  renderHdRight();
+  loadJobs();
+  // Handle referral param
+  const urlp=new URLSearchParams(location.search);
+  if(urlp.get('ref'))localStorage.setItem('wsep_referral',urlp.get('ref'));
+});
+
+function hideLs(){const l=document.getElementById('ls');l.style.opacity='0';setTimeout(()=>l.style.display='none',400);}
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3200);}
+function esc(s){return(s||'').replace(/'/g,"\\'").replace(/"/g,'\\"');}
+
+function renderHdRight(){
+  const el=document.getElementById('hd-right');
+  if(user){el.innerHTML=`<button class="lob" onclick="doLogout()">লগআউট</button>`;}
+  else{el.innerHTML=`<button class="login-hd-btn" onclick="location.href='index.html'">লগইন</button>`;}
+}
+function doLogout(){user=null;localStorage.removeItem('we_user');renderHdRight();appliedSet.clear();if(jobsCache)renderJobs(jobsCache);}
+
+// ════ VIEWS ════
+function showView(view){
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  if(view==='tuitions'){
+    document.getElementById('main').style.display='block';
+    document.getElementById('pipeline-page').style.display='none';
+    document.getElementById('ni-tuitions').classList.add('active');
+  }else{
+    document.getElementById('main').style.display='none';
+    document.getElementById('pipeline-page').style.display='block';
+    document.getElementById('ni-pipeline').classList.add('active');
+    loadPipeline();
+  }
+}
+
+// ════ ZONE FILTER ════
+function filterZone(zone,el){
+  currentZoneFilter=zone;
+  document.querySelectorAll('.ztab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  if(jobsCache)renderJobs(jobsCache);
+}
+
+function getUserZones(){
+  if(user&&user.preferred_zones){try{return JSON.parse(user.preferred_zones);}catch{}}
+  return['uttara'];
+}
+
+// ════ LOAD JOBS ════
+const GHOSTS=[{class:'ক্লাস ৫',salary:6000,days:'৪ দিন/সপ্তাহ'},{class:'ক্লাস ৮',salary:7000,days:'৩ দিন/সপ্তাহ'},{class:'ক্লাস ৬',salary:5000,days:'৪ দিন/সপ্তাহ'}];
+
+async function loadJobs(){
+  const list=document.getElementById('jlist');
+  if(!user){renderGhosts();return;}
+  list.innerHTML=Array(3).fill('').map(()=>`<div class="skc"><div class="skl" style="width:58%"></div><div class="skl" style="width:38%"></div><div class="skl" style="height:34px;border-radius:8px;margin-top:5px"></div></div>`).join('');
+  try{
+    const{data}=await sb.from('wsep_tuitions').select('id,location,salary,class,note,medium,days,time_slot,subject,version,serial_no,zone,created_at').eq('status','available').eq('show_on_site',true).order('created_at',{ascending:false}).limit(200);
+    jobsCache=data||[];renderJobs(jobsCache);
+  }catch{list.innerHTML='<div style="text-align:center;padding:28px;color:var(--rose);font-size:13px">লোড হয়নি। পুনরায় চেষ্টা করুন।</div>';}
+}
+
+function renderGhosts(){
+  document.getElementById('jlist').innerHTML=GHOSTS.map(t=>`<div class="tc" style="background:var(--glass)">
+    <div class="tc-top"><div class="tl">📚 ${t.class}</div><div class="tsal">৳${t.salary.toLocaleString()}/মাস</div></div>
+    <div class="kw-list">
+      <div class="kw-row"><span class="kw-icon">📍</span><span class="kw-label">লোকেশন</span><span class="kw-val bv" onclick="location.href='index.html'">লগইন করুন</span></div>
+      <div class="kw-row"><span class="kw-icon">📅</span><span class="kw-label">দিন</span><span class="kw-val bv">${t.days}</span></div>
+    </div>
+    <div class="job-actions"><button class="apb" onclick="location.href='index.html'">আবেদন করুন →</button></div>
+  </div>`).join('');}
+
+function renderJobs(data){
+  const list=document.getElementById('jlist');
+  // Filter by zone
+  let filtered=data;
+  if(currentZoneFilter!=='all'){filtered=data.filter(t=>t.zone===currentZoneFilter);}
+  if(!filtered.length){list.innerHTML='<div style="text-align:center;padding:36px;color:var(--rose);font-size:13px">এই এলাকায় বর্তমানে কোনো টিউশন নেই 🌸</div>';return;}
+
+  // Group by zone
+  const uz=getUserZones();
+  // Sort: user's zones first
+  const sorted=[...filtered.filter(t=>uz.includes(t.zone)),...filtered.filter(t=>!uz.includes(t.zone))];
+
+  // Group by zone
+  const grouped={};
+  sorted.forEach(t=>{if(!grouped[t.zone])grouped[t.zone]=[];grouped[t.zone].push(t);});
+
+  let html='';
+  Object.entries(grouped).forEach(([zone,tuitions])=>{
+    const colors=ZONE_COLORS[zone]||['#c9184a','#e8174a'];
+    const bg=ZONE_BG[zone]||'rgba(201,24,74,.04)';
+    const label=ZONE_LABELS[zone]||zone;
+    html+=`<div class="zone-section">
+      <div class="zone-hdr" style="background:linear-gradient(135deg,${colors[0]},${colors[1]})">
+        <span>📍</span><span>${label}</span><span style="margin-left:auto;font-size:11px;opacity:.85">${tuitions.length}টি টিউশন</span>
+      </div>`;
+    tuitions.forEach(t=>{
+      const done=appliedSet.has(t.id);
+      const btn=done?`<button class="apb apb-done" disabled>✓ আবেদন হয়েছে</button>`:`<button class="apb" onclick="openApply('${t.id}',${t.salary},'${esc(t.location)}','${esc(t.class)}','${esc(t.days)}','${esc(t.subject||'')}','${esc(t.time_slot||'')}')">আবেদন করুন →</button>`;
+      const upoharBtn=`<button class="apb" style="background:linear-gradient(135deg,#f97316,#fb923c);flex:0 0 auto;padding:9px 13px;" onclick="showUpohar('${t.id}',${t.salary},'${esc(t.location)}','${esc(t.class)}','${esc(t.days||'')}','${esc(t.subject||'')}','${esc(t.time_slot||'')}')">🎁 উপহার</button>`;
+      const kws=[
+        {icon:'📍',label:'লোকেশন',val:t.location},
+        {icon:'💰',label:'বেতন',val:`৳${Number(t.salary).toLocaleString()}/মাস`},
+        {icon:'📚',label:'ক্লাস',val:t.class},
+        {icon:'📖',label:'বিষয়',val:t.subject},
+        {icon:'📅',label:'দিন',val:t.days},
+        {icon:'⏰',label:'সময়',val:t.time_slot},
+        {icon:'🗣️',label:'মিডিয়াম',val:t.version||t.medium}
+      ].filter(k=>k.val);
+      const ser=t.serial_no?`<span class="tc-serial">#${t.serial_no}</span>`:'';
+      html+=`<div class="tc" style="background:${bg}border:1px solid ${colors[0]}22">
+        <div class="tc-top"><div class="tl">📍 ${t.location} ${ser}</div><div class="tsal">৳${Number(t.salary).toLocaleString()}/মাস</div></div>
+        <div class="kw-list">${kws.map(k=>`<div class="kw-row"><span class="kw-icon">${k.icon}</span><span class="kw-label">${k.label}</span><span class="kw-val">${k.val}</span></div>`).join('')}</div>
+        ${t.note?`<div style="font-size:11px;color:#666;padding:5px 8px;background:rgba(201,24,74,.03);border-radius:7px;border-left:2px solid var(--rose5);margin-bottom:7px;line-height:1.6">${t.note}</div>`:''}
+        <div class="job-actions">${btn}${upoharBtn}</div>
+      </div>`;
+    });
+    html+=`</div>`;
+  });
+  list.innerHTML=html;
+}
+
+// ════ APPLY ════
+function openApply(id,salary,loc,cls,days,subject,timeSlot){
+  if(!user){location.href='index.html';return;}
+  curTuit={id,salary,loc,cls,days,subject,timeSlot};selQ1Val=null;selQ2Val=null;
+  apStep=hasAnsweredExtraQ?1:0.5;
+  renderApply();document.getElementById('amod').classList.add('open');
+}
+function renderApply(){
+  const chg=Math.round(curTuit.salary*0.5713),first=1000,rest=chg-1000;
+  const c=document.getElementById('amod-c');
+  if(apStep===0.5){
+    c.innerHTML=`<div class="mrow"><div class="mt">কিছু তথ্য দিন</div><button class="mclose" onclick="closeApply()">✕</button></div>
+    <div style="margin-bottom:12px"><div style="font-size:13px;font-weight:700;color:var(--deep);margin-bottom:6px">১. বর্তমানে কতটি টিউশন পড়াচ্ছেন?</div><div class="apq-opt" id="q1-opts">${[['zero','শূন্য'],['one_two','১–২টি'],['three_four','৩–৪টি'],['four_plus','৪-এর বেশি']].map(([v,l])=>`<button class="apq-btn" onclick="selQ1('${v}',this)">${l}</button>`).join('')}</div></div>
+    <div style="margin-bottom:12px"><div style="font-size:13px;font-weight:700;color:var(--deep);margin-bottom:6px">২. আগে মিডিয়া ফি দিয়ে টিউশন নিয়েছেন?</div><div class="apq-opt" id="q2-opts"><button class="apq-btn" onclick="selQ2(true,this)">হ্যাঁ</button><button class="apq-btn" onclick="selQ2(false,this)">না</button></div></div>
+    <div style="margin-bottom:12px"><div style="font-size:13px;font-weight:700;color:var(--deep);margin-bottom:5px">৩. জরুরি সিনিয়রের নম্বর:</div><input type="tel" class="fi" id="ap-em-contact" placeholder="01XXXXXXXXX"></div>
+    <button class="byes" onclick="submitExtraQ()">পরবর্তী →</button>`;
+  }else if(apStep===1){
+    c.innerHTML=`<div class="mrow"><div class="mt">সার্ভিস চার্জ</div><button class="mclose" onclick="closeApply()">✕</button></div><div class="mb">প্রথম মাসের salary-এর <strong>৫৭.১৩%</strong> সার্ভিস চার্জ।</div><div class="mh">💰 আপনার চার্জ: <strong>৳${chg.toLocaleString()}</strong></div><div class="mac"><button class="bno" onclick="closeApply()">না</button><button class="byes" onclick="apStep=2;renderApply()">হ্যাঁ, সম্মত</button></div>`;
+  }else if(apStep===2){
+    c.innerHTML=`<div class="mrow"><div class="mt">পেমেন্ট প্ল্যান</div><button class="mclose" onclick="closeApply()">✕</button></div><div class="mb">কনফার্মের ৩ দিনে ৳${first.toLocaleString()} এবং বাকি ৳${rest.toLocaleString()} ১০ দিনে।</div><div class="mh">🔹 ১ম কিস্তি: ৳${first.toLocaleString()}<br>🔹 বাকি: ৳${rest.toLocaleString()}</div><div class="mac"><button class="bno" onclick="applyNo()">না</button><button class="byes" id="subbtn" onclick="submitApply()">হ্যাঁ, পারব</button></div>`;
+  }else if(apStep===3){
+    c.innerHTML=`<div class="msucc"><div class="msico">✅</div><div class="mt" style="text-align:center;margin-bottom:8px">আবেদন সফল!</div><p style="font-size:13px;color:#555;line-height:1.8">সিলেক্ট হলে আমাদের এজেন্ট যোগাযোগ করবে।</p><button class="byes" style="width:100%;margin-top:14px" onclick="closeApply()">ঠিক আছে</button></div>`;
+  }
+}
+function selQ1(v,el){selQ1Val=v;document.querySelectorAll('#q1-opts .apq-btn').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');}
+function selQ2(v,el){selQ2Val=v;document.querySelectorAll('#q2-opts .apq-btn').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');}
+function submitExtraQ(){
+  if(selQ1Val===null||selQ2Val===null)return showToast('প্রথম দুটি প্রশ্নের উত্তর দিন');
+  const em=(document.getElementById('ap-em-contact').value||'').trim();
+  if(!em||!/^01[3-9]\d{8}$/.test(em))return showToast('সিনিয়রের সঠিক নম্বর দিন');
+  apExtraQ={currentTuitions:selQ1Val,paidMediaFee:selQ2Val,emergencyContact:em};
+  hasAnsweredExtraQ=true;apStep=1;renderApply();
+}
+function applyNo(){document.getElementById('amod-c').innerHTML=`<div class="msucc"><div class="msico">😔</div><div class="mt" style="text-align:center;margin-bottom:8px">দুঃখিত</div><p style="font-size:13px;color:#555;line-height:1.8">সার্ভিস চার্জ বাধ্যতামূলক।</p><button class="bno" style="width:100%;margin-top:14px" onclick="closeApply()">বুঝেছি</button></div>`;}
+async function submitApply(){
+  const btn=document.getElementById('subbtn');if(btn){btn.disabled=true;btn.textContent='পাঠানো হচ্ছে...';}
+  appliedSet.add(curTuit.id);apStep=3;renderApply();if(jobsCache)renderJobs(jobsCache);
+  try{
+    await sb.from('wsep_applications').insert([{
+      tuition_id:curTuit.id,user_id:user.id,user_name:user.name,user_phone:user.whatsapp,
+      user_university:user.university,user_year:user.year||'—',user_email:user.email,
+      user_parents_phone:user.parents_phone,
+      user_emergency_contact:apExtraQ.emergencyContact||'—',
+      agreed_service_charge:true,agreed_payment_plan:true,
+      current_tuitions:apExtraQ.currentTuitions,paid_media_fee_before:apExtraQ.paidMediaFee,
+      status:'pending'
+    }]);
+    // Daily login streak
+    const today=getBdDateStr();
+    await sb.from('wsep_daily_logins').upsert([{user_id:user.id,login_date:today}],{onConflict:'user_id,login_date',ignoreDuplicates:true});
+  }catch{showToast('আবেদন সংরক্ষিত হয়নি');}
+}
+function closeApply(){document.getElementById('amod').classList.remove('open');setTimeout(()=>{apStep=0;curTuit=null;},380);}
+document.getElementById('amod').addEventListener('click',e=>{if(e.target===document.getElementById('amod'))closeApply();});
+
+// ════ উপহার (Referral) ════
+function showUpohar(id,salary,loc,cls,days,subject,timeSlot){
+  const refCode=user?user.whatsapp:'FRIEND';
+  const refLink=`${APP_LINK}?ref=${refCode}`;
+  const tuitionDetails=`📍 লোকেশন: ${loc}\n💰 বেতন: ৳${Number(salary).toLocaleString()}/মাস\n📚 ক্লাস: ${cls}${subject?'\n📖 বিষয়: '+subject:''}${days?'\n📅 দিন: '+days:''}${timeSlot?'\n⏰ সময়: '+timeSlot:''}`;
+  const waText=encodeURIComponent(`আমার একটি টিউশন আছে তোমার জন্য! 📚\n\n${tuitionDetails}\n\n🔗 আবেদন করো: ${refLink}`);
+  const msgText=encodeURIComponent(`আমার একটি টিউশন আছে তোমার জন্য! 📚\n${tuitionDetails}\n\nআবেদন করো: ${refLink}`);
+  const copyText=`📚 টিউশন সুযোগ!\n\n${tuitionDetails}\n\n🔗 আবেদন: ${refLink}`;
+
+  const mod=document.getElementById('umod');
+  document.getElementById('umod-c').innerHTML=`
+    <div class="mrow"><div class="mt">🎁 উপহার পান!</div><button class="mclose" onclick="document.getElementById('umod').classList.remove('open')">✕</button></div>
+    <div class="mb" style="background:linear-gradient(135deg,rgba(249,115,22,.07),rgba(251,146,60,.05));border-left:3px solid #f97316;border-radius:0 10px 10px 0;padding:11px 13px;margin-bottom:13px;line-height:1.85">
+      আপনার friend-কে refer করুন। আপনার friend টিউশনটি করলে, আপনি পেয়ে যাবেন <strong>একটি gift voucher</strong> 🎉
+    </div>
+    <div style="font-size:11px;background:rgba(201,24,74,.06);border-radius:9px;padding:9px 11px;margin-bottom:11px;line-height:1.7;color:#444">
+      <strong>টিউশন বিবরণ:</strong><br>${tuitionDetails.replace(/\n/g,'<br>')}
+    </div>
+    <div style="font-size:12px;font-weight:700;color:var(--mid);margin-bottom:8px">শেয়ার করুন:</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <a href="https://wa.me/?text=${waText}" target="_blank" class="byes" style="flex:1;text-align:center;text-decoration:none;background:linear-gradient(135deg,#25D366,#128C7E)">📱 WhatsApp</a>
+      <a href="https://m.me?link=${encodeURIComponent(refLink)}&text=${msgText}" target="_blank" class="byes" style="flex:1;text-align:center;text-decoration:none;background:linear-gradient(135deg,#1877f2,#0a5fd8)">💬 Messenger</a>
+      <button class="byes" style="flex:1;background:linear-gradient(135deg,#64748b,#475569)" onclick="navigator.clipboard.writeText(${JSON.stringify(copyText)});showToast('কপি হয়েছে ✅')">📋 Copy</button>
+    </div>`;
+  mod.classList.add('open');
+}
+document.getElementById('umod').addEventListener('click',e=>{if(e.target===document.getElementById('umod'))document.getElementById('umod').classList.remove('open');});
+
+// ════ PIPELINE ════
+async function loadPipeline(){
+  const list=document.getElementById('pipeline-list');
+  if(!user){list.innerHTML='<div style="text-align:center;padding:30px;color:var(--rose);font-size:13px"><a href="index.html" style="color:var(--rose);font-weight:700">লগইন করুন</a> আবেদন দেখতে</div>';return;}
+  list.innerHTML=`<div class="skc" style="height:80px"></div><div class="skc" style="height:80px"></div>`;
+  try{
+    const{data}=await sb.from('wsep_applications')
+      .select('*,wsep_tuitions(location,salary,class,subject,days,time_slot,zone)')
+      .eq('user_id',user.id)
+      .order('created_at',{ascending:false});
+    if(!data||!data.length){list.innerHTML='<div style="text-align:center;padding:36px;color:var(--rose);font-size:13px">এখনো কোনো আবেদন করেননি 🌸</div>';return;}
+    list.innerHTML=data.map(app=>{
+      const t=app.wsep_tuitions||{};
+      const statusMap={pending:['pending','⏳ বিবেচনাধীন'],confirmed:['confirmed','✅ কনফার্ম'],rejected:['rejected','❌ প্রত্যাখ্যাত']};
+      const [sc,sl]=statusMap[app.status]||['pending','⏳ বিবেচনাধীন'];
+      const dateStr=new Date(app.created_at).toLocaleDateString('bn-BD',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+      return `<div class="pipeline-card">
+        <div class="pipeline-status status-${sc}">${sl}</div>
+        <div style="font-size:14px;font-weight:800;color:var(--deep);margin-bottom:6px">📍 ${t.location||'—'}</div>
+        <div style="font-size:12px;color:#555;line-height:1.8">
+          💰 ৳${Number(t.salary||0).toLocaleString()}/মাস &nbsp;|&nbsp; 📚 ${t.class||'—'}${t.subject?' &nbsp;|&nbsp; 📖 '+t.subject:''}<br>
+          📅 ${t.days||'—'} &nbsp;|&nbsp; ⏰ ${t.time_slot||'—'}<br>
+          <span style="font-size:10px;color:#aaa">আবেদন: ${dateStr}</span>
+        </div>
+      </div>`;
+    }).join('');
+  }catch{list.innerHTML='<div style="text-align:center;padding:26px;color:var(--rose)">লোড হয়নি</div>';}
+}
+
+function getBdDateStr(){const now=new Date();const bd=new Date(now.getTime()+6*60*60*1000);return bd.toISOString().slice(0,10);}
+
+// ════ TUITION PAGE ANALYTICS ════
+(()=>{
+  const sid=localStorage.getItem('wsep_sid')||crypto.randomUUID();
+  localStorage.setItem('wsep_sid',sid);
+  const startTime=Date.now();
+  const isLogged=!!localStorage.getItem('we_user');
+  let userData=null;try{userData=JSON.parse(localStorage.getItem('we_user')||'null');}catch{}
+  async function flushTuitionAnalytics(){
+    const dur=Math.round((Date.now()-startTime)/1000);
+    if(dur<2)return;
+    try{
+      await sb.from('wsep_analytics').insert([{
+        session_id:sid+'_tuition_'+Date.now(),
+        is_logged:isLogged,
+        user_id:userData?userData.id:null,
+        session_duration:dur,
+        page_flow:JSON.stringify(['tuition']),
+        page_times:JSON.stringify({tuition:dur}),
+        created_at:new Date().toISOString()
+      }]);
+    }catch{}
+  }
+  window.addEventListener('beforeunload',flushTuitionAnalytics);
+  window.addEventListener('pagehide',flushTuitionAnalytics);
+})();
+</script>
+</body>
+</html>
