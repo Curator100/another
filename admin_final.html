@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#c9184a">
+<title>WE WOMEN — Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+:root{--rose:#c9184a;--rose2:#e8174a;--rose3:#ff4d6d;--rose4:#ff85a1;--rose5:#ffb3c6;--deep:#800f2f;--mid:#a4133c;--glass:rgba(255,255,255,0.75);--gb:rgba(255,255,255,0.48);--sh:0 8px 32px rgba(201,24,74,0.14);--f:'Hind Siliguri','Arial Unicode MS',Arial,sans-serif;--fd:'Playfair Display',serif}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--f);background:linear-gradient(160deg,#fff0f3 0%,#ffe0e8 40%,#ffb3c6 100%);min-height:100vh;overflow-x:hidden}
+/* LOADER */
+#ldg{position:fixed;inset:0;z-index:9999;background:linear-gradient(160deg,#fff0f3,#ffe0e8);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.sp{width:42px;height:42px;border:4px solid rgba(201,24,74,.18);border-top-color:var(--rose);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* LOGIN */
+#login-scr{display:none;min-height:100vh;align-items:center;justify-content:center;padding:20px}
+.lcard{background:var(--glass);backdrop-filter:blur(24px);border:1px solid var(--gb);border-radius:22px;padding:32px 24px;width:100%;max-width:340px;box-shadow:var(--sh)}
+.llogo{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#c9184a,#ff4d6d);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;box-shadow:0 8px 24px rgba(201,24,74,.35)}
+.ltitle{font-family:var(--fd);font-size:18px;font-weight:900;color:var(--deep);text-align:center;margin-bottom:3px}
+.lsub{font-size:12px;color:var(--rose);text-align:center;margin-bottom:22px;font-weight:500}
+.fg{margin-bottom:12px}
+.fl{display:block;font-size:11px;font-weight:700;color:var(--mid);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.fi{width:100%;padding:10px 13px;border:1.5px solid rgba(201,24,74,.18);border-radius:11px;background:rgba(255,255,255,.9);font-family:var(--f);font-size:14px;color:#333;outline:none;transition:border-color .2s;-webkit-appearance:none}
+.fi:focus{border-color:var(--rose3);box-shadow:0 0 0 3px rgba(255,77,109,.1)}
+.bp{width:100%;padding:12px;background:linear-gradient(135deg,#c9184a,#ff4d6d);color:#fff;border:none;border-radius:13px;font-family:var(--f);font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 5px 18px rgba(201,24,74,.28)}
+.bp:disabled{opacity:.6;cursor:not-allowed}
+.em{background:#ffe0e8;border:1px solid #ff85a1;color:var(--rose);padding:9px 12px;border-radius:9px;font-size:13px;margin-bottom:10px;display:none;line-height:1.5}
+/* APP */
+#app-scr{display:none}
+.top-nav{background:rgba(255,240,243,.9);backdrop-filter:blur(24px);border-bottom:1px solid rgba(201,24,74,.12);padding:10px 14px;position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tnbrand{display:flex;align-items:center;gap:9px}
+.tnlogo{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#c9184a,#ff4d6d);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tnname{font-family:var(--fd);font-size:13px;font-weight:900;color:var(--deep)}.tnsub{font-size:10px;color:var(--rose);font-weight:500}
+.tnuser{font-size:11px;color:#888;text-align:right}.tnuser strong{display:block;font-size:12px;color:var(--mid);font-weight:700}
+.lout-btn{background:rgba(201,24,74,.08);border:none;color:var(--rose);padding:4px 9px;border-radius:7px;font-family:var(--f);font-size:10px;cursor:pointer;margin-top:2px;font-weight:600}
+.notif-wrap{position:relative}
+.notif-bell{background:rgba(201,24,74,.08);border:none;border-radius:8px;padding:5px 8px;font-size:17px;cursor:pointer;line-height:1;position:relative}
+.notif-badge{position:absolute;top:-3px;right:-3px;width:15px;height:15px;border-radius:50%;background:var(--rose2);color:#fff;font-size:9px;font-weight:800;display:none;align-items:center;justify-content:center}
+.notif-badge.show{display:flex}
+.notif-drop{position:absolute;top:calc(100% + 7px);right:0;width:285px;background:#fff;border:1px solid rgba(201,24,74,.14);border-radius:14px;box-shadow:0 10px 32px rgba(201,24,74,.18);z-index:300;overflow:hidden;display:none}
+.notif-drop.open{display:block}
+.notif-hdr{padding:11px 13px;border-bottom:1px solid rgba(201,24,74,.07);font-size:12px;font-weight:800;color:var(--mid);display:flex;align-items:center;justify-content:space-between}
+.notif-hdr button{background:none;border:none;font-size:11px;color:var(--rose);cursor:pointer;font-weight:600}
+.notif-item{padding:11px 13px;border-bottom:1px solid rgba(201,24,74,.05);font-size:12px;color:#444;line-height:1.6}
+.notif-item strong{color:var(--mid);display:block;font-size:12px;margin-bottom:1px}
+.notif-empty{padding:18px;text-align:center;color:#bbb;font-size:12px}
+/* TABS */
+.tab-nav{display:flex;overflow-x:auto;background:rgba(255,255,255,.5);border-bottom:1px solid rgba(201,24,74,.1);scrollbar-width:none}
+.tab-nav::-webkit-scrollbar{display:none}
+.tnav{flex-shrink:0;padding:10px 14px;border:none;background:transparent;font-family:var(--f);font-size:12px;font-weight:600;color:#aaa;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;white-space:nowrap}
+.tnav.active{color:var(--rose);border-bottom-color:var(--rose);background:rgba(201,24,74,.04)}
+/* MAIN */
+.main{padding:13px;max-width:960px;margin:0 auto}
+.card{background:var(--glass);backdrop-filter:blur(16px);border:1px solid var(--gb);border-radius:18px;padding:16px;box-shadow:var(--sh);margin-bottom:14px}
+.card-title{font-size:14px;font-weight:800;color:var(--mid);margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid rgba(201,24,74,.1);font-family:var(--fd)}
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:14px}
+.stat{background:var(--glass);backdrop-filter:blur(12px);border:1px solid var(--gb);border-radius:14px;padding:14px 11px;text-align:center}
+.stat-n{font-size:26px;font-weight:900;color:var(--rose);font-family:var(--fd)}.stat-l{font-size:11px;color:#777;margin-top:2px;font-weight:500}
+/* TABLE */
+.tbl-wrap{overflow-x:auto;border-radius:11px;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;min-width:520px}
+th{background:rgba(201,24,74,.07);padding:10px 12px;text-align:left;font-size:11px;font-weight:700;color:var(--mid);white-space:nowrap}
+td{padding:10px 12px;font-size:12px;color:#444;border-bottom:1px solid rgba(201,24,74,.05)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(201,24,74,.02)}
+/* BADGES */
+.badge{display:inline-block;padding:3px 8px;border-radius:18px;font-size:11px;font-weight:700}
+.bg{background:rgba(34,197,94,.12);color:#16a34a}.br{background:rgba(201,24,74,.12);color:var(--rose)}.bp2{background:rgba(244,162,97,.15);color:#c06000}.bb{background:rgba(59,130,246,.12);color:#1d4ed8}
+/* BUTTONS */
+.bsm{padding:5px 11px;border:none;border-radius:8px;font-family:var(--f);font-size:11px;font-weight:700;cursor:pointer;transition:transform .15s,opacity .15s;white-space:nowrap}
+.bsm:active{transform:scale(.94)}
+.bd{background:rgba(201,24,74,.1);color:var(--rose)}.bs{background:rgba(34,197,94,.1);color:#16a34a}.bsec{background:rgba(201,24,74,.07);color:var(--rose)}.bblue{background:rgba(59,130,246,.1);color:#1d4ed8}.borange{background:rgba(244,162,97,.15);color:#c06000}
+.bpri{background:linear-gradient(135deg,#c9184a,#ff4d6d);color:#fff;padding:9px 16px;box-shadow:0 3px 11px rgba(201,24,74,.23)}
+.bkbtn{background:rgba(201,24,74,.08);border:1.5px solid rgba(201,24,74,.14);border-radius:9px;padding:6px 12px;font-family:var(--f);font-size:12px;font-weight:700;color:var(--rose);cursor:pointer}
+/* FORMS */
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
+@media(max-width:480px){.fr2,.fr3{grid-template-columns:1fr}}
+.fsel{width:100%;padding:10px 13px;border:1.5px solid rgba(201,24,74,.18);border-radius:11px;background:rgba(255,255,255,.9);font-family:var(--f);font-size:13px;color:#333;outline:none;-webkit-appearance:none}
+.fsel:focus{border-color:var(--rose3)}
+.fta{width:100%;padding:10px 13px;border:1.5px solid rgba(201,24,74,.18);border-radius:11px;background:rgba(255,255,255,.9);font-family:var(--f);font-size:13px;color:#333;outline:none;height:68px;resize:vertical}
+.fta:focus{border-color:var(--rose3)}
+/* TUITION CARDS */
+.tcard{background:rgba(255,255,255,.78);border:1px solid rgba(201,24,74,.1);border-radius:14px;padding:14px;margin-bottom:10px;position:relative}
+.tcard-serial{position:absolute;top:10px;right:11px;font-size:13px;color:var(--mid);font-weight:900;font-family:var(--fd)}
+.tcard-loc{font-size:13px;font-weight:800;color:var(--deep);margin-bottom:7px}
+.tcard-sal{background:linear-gradient(135deg,#c9184a,#ff4d6d);color:#fff;padding:3px 10px;border-radius:14px;font-size:12px;font-weight:700;display:inline-block;margin-bottom:7px}
+.tcard-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:7px}
+.tcard-tag{background:rgba(201,24,74,.07);color:var(--rose);padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600}
+.tcard-note{font-size:12px;color:#666;margin-bottom:8px;padding:7px 9px;background:rgba(201,24,74,.03);border-radius:7px;border-left:2px solid var(--rose5);line-height:1.6}
+.tcard-meta{font-size:11px;color:#aaa;margin-bottom:9px}
+.tcard-actions{display:flex;gap:6px;flex-wrap:wrap}
+/* PIPELINE */
+.pipe-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:18px;font-size:11px;font-weight:700;margin-bottom:7px}
+.pipe-new{background:rgba(156,163,175,.15);color:#6b7280}.pipe-booked{background:rgba(59,130,246,.12);color:#1d4ed8}.pipe-call_given{background:rgba(244,162,97,.15);color:#c06000}.pipe-guardian_given{background:rgba(168,85,247,.12);color:#7c3aed}.pipe-demo_done{background:rgba(34,197,94,.12);color:#15803d}.pipe-first_installment{background:rgba(234,179,8,.12);color:#a16207}.pipe-second_installment{background:rgba(234,179,8,.18);color:#92400e}.pipe-done_success{background:rgba(34,197,94,.2);color:#14532d}.pipe-done_fail{background:rgba(201,24,74,.12);color:var(--mid)}
+/* APPLICANT */
+.appinfo{background:rgba(255,255,255,.9);border:1px solid rgba(201,24,74,.1);border-radius:12px;padding:13px;margin-bottom:9px}
+.appinfo h4{font-size:13px;font-weight:800;color:var(--mid);margin-bottom:5px}
+.appinfo p{font-size:12px;color:#555;line-height:1.85}
+.rank-score{display:inline-block;background:linear-gradient(135deg,#c9184a,#ff4d6d);color:#fff;padding:2px 7px;border-radius:7px;font-size:10px;font-weight:800;margin-left:5px}
+.sel-btn{margin-top:8px;padding:7px 13px;border-radius:8px;border:none;font-family:var(--f);font-size:12px;font-weight:700;cursor:pointer}
+.sel-btn.unsel{background:rgba(201,24,74,.08);color:var(--rose)}.sel-btn.sel{background:linear-gradient(135deg,#16a34a,#15803d);color:#fff}
+.sel-btn:active{transform:scale(.95)}
+/* APPLIED NOTIFICATION DOT */
+.new-app-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--rose2);margin-left:5px;animation:blink 1.4s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+/* MODAL */
+.mbg{position:fixed;inset:0;z-index:300;background:rgba(128,15,47,.5);backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.mbg.open{opacity:1;pointer-events:all}
+.mbox{background:linear-gradient(155deg,#fff0f3,#ffe0e8 60%,#fff0f3);border-radius:22px 22px 0 0;padding:20px 18px 36px;width:100%;max-width:560px;max-height:92vh;overflow-y:auto;transform:translateY(100%);transition:transform .36s cubic-bezier(.34,1.56,.64,1)}
+.mbg.open .mbox{transform:translateY(0)}
+.mdg{width:34px;height:4px;background:rgba(201,24,74,.18);border-radius:4px;margin:0 auto 16px}
+.mttl{font-size:16px;font-weight:800;color:var(--deep);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;font-family:var(--fd)}
+.mx{background:rgba(201,24,74,.08);border:none;font-size:17px;cursor:pointer;color:var(--rose);padding:5px 7px;line-height:1;border-radius:7px}
+/* PIPE OPTIONS */
+.pipe-opts{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:11px}
+.pipe-opt{padding:8px 10px;border:1.5px solid rgba(201,24,74,.14);border-radius:9px;background:rgba(255,255,255,.7);font-family:var(--f);font-size:11px;font-weight:700;color:#666;cursor:pointer;text-align:center;transition:all .18s}
+.pipe-opt.active{border-color:var(--rose);background:rgba(201,24,74,.08);color:var(--rose)}
+.pipe-opt:active{transform:scale(.95)}
+.pipe-note-fi{width:100%;padding:9px 11px;border:1.5px solid rgba(201,24,74,.14);border-radius:9px;background:rgba(255,255,255,.85);font-family:var(--f);font-size:12px;color:#333;outline:none;resize:vertical;height:60px;margin-bottom:9px}
+.pipe-note-fi:focus{border-color:var(--rose3)}
+.pipe-save-btn{width:100%;padding:10px;background:linear-gradient(135deg,#c9184a,#ff4d6d);color:#fff;border:none;border-radius:10px;font-family:var(--f);font-size:13px;font-weight:700;cursor:pointer}
+/* TIMELINE */
+.timeline-day{background:rgba(255,255,255,.78);border:1px solid rgba(201,24,74,.1);border-radius:13px;padding:13px;margin-bottom:10px}
+.tl-date{font-size:13px;font-weight:800;color:var(--mid);font-family:var(--fd);margin-bottom:9px;padding-bottom:7px;border-bottom:1px solid rgba(201,24,74,.08)}
+.tl-section{margin-bottom:9px}
+.tl-sec-title{font-size:12px;font-weight:800;color:var(--deep);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.tl-item{background:rgba(255,255,255,.7);border:1px solid rgba(201,24,74,.08);border-radius:9px;padding:9px 11px;margin-bottom:6px;font-size:12px;color:#444;line-height:1.7}
+.tl-item strong{color:var(--mid);font-weight:700}
+.tl-tick{display:inline-flex;align-items:center;gap:6px;margin-top:6px}
+.tl-tick input[type=checkbox]{width:16px;height:16px;accent-color:var(--rose);cursor:pointer}
+.tl-tick label{font-size:11px;color:#777;cursor:pointer}
+/* KISTI DATES */
+.kisti-date-fi{padding:6px 10px;border:1.5px solid rgba(201,24,74,.16);border-radius:8px;font-family:var(--f);font-size:12px;color:#333;outline:none;background:rgba(255,255,255,.88)}
+.kisti-date-fi:focus{border-color:var(--rose3)}
+/* MOD JOBSBOARD */
+.mjb-card{background:rgba(255,255,255,.78);border:1px solid rgba(201,24,74,.1);border-radius:13px;padding:13px;margin-bottom:11px}
+.mjb-loc{font-size:13px;font-weight:800;color:var(--deep)}.mjb-sal{font-size:12px;color:var(--rose);font-weight:700}
+.mjb-tutor{background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.18);border-radius:9px;padding:9px 11px;margin:8px 0}
+.mjb-tutor-title{font-size:11px;font-weight:700;color:#15803d;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
+/* ANALYTICS */
+.ana-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:13px}
+.ana-card{background:rgba(255,255,255,.75);border:1px solid rgba(201,24,74,.1);border-radius:13px;padding:13px;text-align:center}
+.ana-num{font-size:22px;font-weight:900;color:var(--rose);font-family:var(--fd)}.ana-label{font-size:11px;color:#777;margin-top:2px;line-height:1.4}
+.ana-table{width:100%;border-collapse:collapse;font-size:12px}
+.ana-table th{background:rgba(201,24,74,.06);padding:8px 10px;text-align:left;font-size:11px;font-weight:700;color:var(--mid)}
+.ana-table td{padding:8px 10px;border-bottom:1px solid rgba(201,24,74,.05);color:#444}
+/* ZONE */
+.zone-link-row{margin-bottom:11px;padding:11px 13px;background:rgba(255,255,255,.75);border:1px solid rgba(201,24,74,.1);border-radius:11px}
+.zone-link-label{font-size:12px;font-weight:700;color:var(--mid);margin-bottom:5px}
+.refbox{background:rgba(201,24,74,.04);border:1px dashed rgba(201,24,74,.2);border-radius:8px;padding:7px 11px;font-size:11px;color:var(--mid);font-family:monospace;word-break:break-all}
+.copybtn{background:rgba(201,24,74,.1);border:none;border-radius:6px;padding:5px 9px;font-size:10px;color:var(--rose);cursor:pointer;margin-left:5px;font-weight:600}
+/* COMMUNITY MOD */
+.comm-mod-post{background:rgba(255,255,255,.85);border:1px solid rgba(201,24,74,.1);border-radius:12px;padding:13px;margin-bottom:9px}
+.comm-mod-name{font-size:13px;font-weight:800;color:var(--mid);margin-bottom:4px}
+.comm-mod-content{font-size:12px;color:#555;line-height:1.8;margin-bottom:9px}
+.comm-admin-box{background:rgba(255,255,255,.85);border:1.5px dashed rgba(201,24,74,.2);border-radius:13px;padding:14px;margin-bottom:13px}
+/* UPLOAD JSON */
+.upload-json-box{background:rgba(59,130,246,.05);border:1.5px dashed rgba(59,130,246,.22);border-radius:12px;padding:16px;margin-top:11px;display:none}
+.upload-json-box.show{display:block}
+.json-preview{font-size:11px;color:#444;line-height:1.8;max-height:180px;overflow-y:auto;background:rgba(255,255,255,.7);border-radius:7px;padding:9px;margin:9px 0;font-family:monospace}
+/* PAGINATION */
+.pg-ctrl{display:flex;align-items:center;justify-content:space-between;margin-top:13px;gap:9px;flex-wrap:wrap}
+.pg-info{font-size:12px;color:#888;font-weight:500}
+.pg-btns{display:flex;gap:5px}
+.pg-btn{padding:5px 12px;border:1.5px solid rgba(201,24,74,.16);border-radius:8px;background:rgba(255,255,255,.7);color:var(--rose);font-family:var(--f);font-size:12px;font-weight:700;cursor:pointer}
+.pg-btn:disabled{opacity:.35;cursor:default}
+.copy-list-btn{padding:6px 12px;background:rgba(201,24,74,.08);border:1.5px solid rgba(201,24,74,.14);border-radius:9px;color:var(--rose);font-family:var(--f);font-size:12px;font-weight:700;cursor:pointer}
+/* SKELETONS */
+.skl{height:11px;border-radius:6px;margin-bottom:7px;animation:sk 1.4s infinite}
+@keyframes sk{0%{background:linear-gradient(90deg,#ffb3c6 25%,#ff85a1 50%,#ffb3c6 75%);background-size:200%;background-position:200% 0}100%{background:linear-gradient(90deg,#ffb3c6 25%,#ff85a1 50%,#ffb3c6 75%);background-size:200%;background-position:-200% 0}}
+/* TOAST */
+.toast{position:fixed;bottom:18px;right:18px;background:linear-gradient(135deg,#c9184a,#800f2f);color:#fff;padding:10px 17px;border-radius:13px;font-size:13px;font-weight:700;z-index:999;opacity:0;transform:translateY(7px);transition:all .3s;box-shadow:0 5px 20px rgba(201,24,74,.38);max-width:90vw}
+.toast.show{opacity:1;transform:translateY(0)}
+@media(max-width:480px){.toast{left:13px;right:13px;text-align:center;bottom:13px}}
+.no-data{text-align:center;padding:34px;color:var(--rose);font-size:13px;font-weight:500}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:7px}
+.sec-title{font-family:var(--fd);font-size:19px;font-weight:900;color:var(--deep)}
+.fbtns{display:flex;gap:6px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="ldg">
+  <div style="width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#c9184a,#ff4d6d);display:flex;align-items:center;justify-content:center;box-shadow:0 0 28px rgba(201,24,74,.4)">
+    <div style="text-align:center"><div style="font-family:'Playfair Display',serif;font-size:10px;color:#fff;font-weight:900;line-height:1">WE</div><div style="font-size:5px;color:rgba(255,255,255,.85);letter-spacing:2px;font-weight:600">WOMEN</div></div>
+  </div>
+  <div class="sp"></div>
+  <div style="color:var(--mid);font-size:12px;font-weight:600">লোড হচ্ছে...</div>
+</div>
+
+<!-- LOGIN -->
+<div id="login-scr">
+  <div class="lcard">
+    <div class="llogo" style="flex-direction:column"><span style="font-family:'Playfair Display',serif;font-size:12px;color:#fff;font-weight:900;line-height:1">WE</span><span style="font-size:6px;color:rgba(255,255,255,.85);letter-spacing:2px">WOMEN</span></div>
+    <div class="ltitle">WE WOMEN Admin</div>
+    <div class="lsub">অ্যাডমিন ও মডারেটর লগইন</div>
+    <div id="lerr" class="em"></div>
+    <div class="fg"><label class="fl">ইউজারনেম</label><input type="text" id="lu" class="fi" placeholder="username" autocomplete="username"></div>
+    <div class="fg"><label class="fl">পাসওয়ার্ড</label><input type="password" id="lp" class="fi" placeholder="password" autocomplete="current-password"></div>
+    <button class="bp" id="lbtn" onclick="doLogin()">প্রবেশ করুন →</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app-scr">
+  <div class="top-nav">
+    <div class="tnbrand">
+      <div class="tnlogo" style="flex-direction:column"><span style="font-family:'Playfair Display',serif;font-size:8px;color:#fff;font-weight:900;line-height:1">WE</span><span style="font-size:4px;color:rgba(255,255,255,.85);letter-spacing:1px">WOMEN</span></div>
+      <div><div class="tnname">Admin Panel</div><div class="tnsub">WE WOMEN</div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:9px">
+      <div class="notif-wrap">
+        <button class="notif-bell" onclick="toggleNotif()">🔔<span class="notif-badge" id="notif-badge"></span></button>
+        <div class="notif-drop" id="notif-drop">
+          <div class="notif-hdr">নোটিফিকেশন<button onclick="markNotifsRead()">সব পড়া হয়েছে</button></div>
+          <div id="notif-list"><div class="notif-empty">কোনো নোটিফিকেশন নেই</div></div>
+        </div>
+      </div>
+      <div class="tnuser"><strong id="snm">—</strong><span id="srl" style="font-size:10px;color:var(--rose)"></span><button class="lout-btn" onclick="doLogout()">লগআউট</button></div>
+    </div>
+  </div>
+  <div class="tab-nav" id="tab-nav">
+    <button class="tnav active" onclick="showSec('dash',this)">📊 ড্যাশবোর্ড</button>
+    <button class="tnav" onclick="showSec('jobsboard',this)">📋 জবসবোর্ড</button>
+    <button class="tnav" onclick="showSec('users',this)">👥 ব্যবহারকারী</button>
+    <button class="tnav" onclick="showSec('tuitions',this)">💼 টিউশন</button>
+    <button class="tnav" onclick="showSec('applied',this)">📨 আবেদনসমূহ</button>
+    <button class="tnav" onclick="showSec('timeline',this)">📅 টাইমলাইন</button>
+    <button class="tnav" onclick="showSec('community',this)">🌸 কমিউনিটি</button>
+    <button class="tnav" onclick="showSec('analytics',this)">📈 বিশ্লেষণ</button>
+    <button class="tnav" id="mod-tab" onclick="showSec('mods',this)">🛡️ মডারেটর</button>
+
+  </div>
+  <div class="main">
+
+    <!-- ══ DASHBOARD ══ -->
+    <div id="sec-dash" class="sec">
+      <div class="sec-hdr"><div class="sec-title">ড্যাশবোর্ড</div></div>
+      <div class="stats" id="dash-stats">
+        <div class="stat"><div class="skl" style="width:44px;margin:0 auto 7px;height:24px;border-radius:7px"></div><div class="skl" style="width:70px;margin:0 auto;height:9px"></div></div>
+        <div class="stat"><div class="skl" style="width:44px;margin:0 auto 7px;height:24px;border-radius:7px"></div><div class="skl" style="width:70px;margin:0 auto;height:9px"></div></div>
+        <div class="stat"><div class="skl" style="width:44px;margin:0 auto 7px;height:24px;border-radius:7px"></div><div class="skl" style="width:70px;margin:0 auto;height:9px"></div></div>
+        <div class="stat"><div class="skl" style="width:44px;margin:0 auto 7px;height:24px;border-radius:7px"></div><div class="skl" style="width:70px;margin:0 auto;height:9px"></div></div>
+      </div>
+      <!-- Upload JSON — admin only -->
+      <div id="upload-json-area" style="display:none">
+        <div class="card">
+          <div class="card-title">📤 JSON দিয়ে টিউশন আপলোড</div>
+          <p style="font-size:12px;color:#666;margin-bottom:11px;line-height:1.7">JSON ফাইলে একাধিক টিউশনের তথ্য। <code>F34:true</code> মানে শেষ হয়েছে (show_on_site=false)।</p>
+          <input type="file" id="json-file-input" accept=".json" style="display:none" onchange="previewJSON(this)">
+          <button class="bsm bblue" onclick="document.getElementById('json-file-input').click()">📁 JSON ফাইল বেছে নিন</button>
+          <div class="upload-json-box" id="json-preview-box">
+            <div style="font-size:13px;font-weight:700;color:var(--mid);margin-bottom:7px">প্রিভিউ — <span id="json-count">0</span>টি টিউশন</div>
+            <div class="json-preview" id="json-preview-content"></div>
+            <button class="bsm bpri" onclick="uploadJSONTuitions()">✅ আপলোড করুন</button>
+          </div>
+        </div>
+      </div>
+      <!-- Mod referral -->
+      <div id="mod-ref-banner" style="display:none" class="card">
+        <div style="font-size:13px;color:var(--mid);font-weight:700;margin-bottom:5px">আপনার রেফারেল লিঙ্ক</div>
+        <div class="refbox" id="mod-ref-link">—</div>
+        <button class="copybtn" onclick="copyRef()" style="margin-top:6px">📋 কপি</button>
+        <div style="font-size:26px;font-weight:900;color:var(--rose);font-family:var(--fd);margin-top:9px" id="mod-ref-num">0</div>
+        <div style="font-size:12px;color:#777">জন নিবন্ধন করেছেন আপনার লিঙ্ক দিয়ে</div>
+      </div>
+      <div class="card">
+        <div class="card-title">সাম্প্রতিক নিবন্ধন</div>
+        <div id="recent-list"><div class="skl" style="height:35px;margin-bottom:6px"></div><div class="skl" style="height:35px;margin-bottom:6px"></div><div class="skl" style="height:35px"></div></div>
+      </div>
+    </div>
+
+    <!-- ══ JOBSBOARD ══ -->
+    <div id="sec-jobsboard" class="sec" style="display:none">
+      <div class="sec-hdr"><div class="sec-title">জবসবোর্ড</div><button class="bkbtn" onclick="goBack()">← ফিরুন</button></div>
+      <div style="font-size:13px;color:#777;margin-bottom:13px;line-height:1.6">আপনার রেফার করা টিউটর যেসব টিউশনে সিলেক্ট, সেগুলো আপডেট করুন।</div>
+      <div id="jobsboard-list"><div class="skl" style="height:75px;margin-bottom:9px"></div><div class="skl" style="height:75px"></div></div>
+    </div>
+
+    <!-- ══ USERS ══ -->
+    <div id="sec-users" class="sec" style="display:none">
+      <div class="sec-hdr"><div class="sec-title">ব্যবহারকারী</div><button class="bkbtn" onclick="goBack()">← ফিরুন</button></div>
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:9px;flex-wrap:wrap">
+          <input type="text" id="usrch" class="fi" placeholder="🔍 নাম / WhatsApp..." style="flex:1;min-width:130px" oninput="filterUsers()">
+          <input type="text" id="usrch-uni" class="fi" placeholder="🏫 বিশ্ববিদ্যালয়..." style="flex:1;min-width:130px" oninput="filterUsers()">
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;flex-wrap:wrap;gap:7px">
+          <span id="ucnt" style="font-size:12px;color:#888;font-weight:500"></span>
+          <button class="copy-list-btn" onclick="copyUserList()">📋 এই পেজের লিস্ট কপি</button>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>#</th><th>নাম</th><th>WhatsApp</th><th>বিশ্ববিদ্যালয়</th><th>বর্ষ/বিষয়</th><th>অভিভাবক</th><th>রেফারেল</th><th>ব্যালেন্স</th><th>তারিখ</th></tr></thead>
+            <tbody id="utbody"></tbody>
+          </table>
+        </div>
+        <div class="pg-ctrl">
+          <div class="pg-info" id="pg-info-u"></div>
+          <div class="pg-btns">
+            <button class="pg-btn" id="pg-prev-u" onclick="changePage(-1)" disabled>← আগে</button>
+            <button class="pg-btn" id="pg-next-u" onclick="changePage(1)">পরে →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ TUITIONS ══ -->
+    <div id="sec-tuitions" class="sec" style="display:none">
+      <div class="sec-hdr"><div class="sec-title">টিউশন</div><button class="bkbtn" onclick="goBack()">← ফিরুন</button></div>
+      <!-- Post form — admin only -->
+      <div class="card" id="post-form-card" style="display:none">
+        <div class="card-title">নতুন টিউশন পোস্ট করুন</div>
+        <div class="fr2">
+          <div class="fg"><label class="fl">লোকেশন *</label><input type="text" id="tl" class="fi" placeholder="মিরপুর ১০, ঢাকা"></div>
+          <div class="fg"><label class="fl">বেতন (টাকা/মাস) *</label><input type="number" id="ts" class="fi" placeholder="6000"></div>
+        </div>
+        <div class="fr2">
+          <div class="fg"><label class="fl">জোন (Zone) *</label><select id="tzone" class="fsel"><option value="">জোন বেছে নিন...</option><option value="1">Zone 1 — মিরপুর</option><option value="2">Zone 2 — নারায়ণগঞ্জ</option><option value="3">Zone 3 — উত্তরা</option><option value="4">Zone 4 — মোহাম্মদপুর</option><option value="5">Zone 5 — গুলশান/বনানী</option><option value="6">Zone 6 — বাড্ডা/রামপুরা</option><option value="7">Zone 7 — মগবাজার/খিলগাঁও</option><option value="8">Zone 8 — মতিঝিল/লালবাগ</option><option value="9">Zone 9 — ডেমরা/যাত্রাবাড়ি</option><option value="10">Zone 10 — সাভার/আশুলিয়া</option></select></div>
+          <div class="fg"><label class="fl">ক্লাস *</label><input type="text" id="tc" class="fi" placeholder="ক্লাস ৯-১০"></div>
+        </div>
+          <div class="fg"><label class="fl">মিডিয়াম *</label><select id="tm" class="fsel"><option value="">মিডিয়াম...</option><option>বাংলা মিডিয়াম</option><option>ইংলিশ মিডিয়াম</option><option>ইংরেজি ভার্সন</option><option>মাদ্রাসা</option></select></div>
+        </div>
+        <div class="fr3">
+          <div class="fg"><label class="fl">দিন</label><input type="text" id="td" class="fi" placeholder="শনি, মঙ্গল"></div>
+          <div class="fg"><label class="fl">সময়</label><input type="text" id="ttime" class="fi" placeholder="বিকাল ৫টা"></div>
+          <div class="fg"><label class="fl">ভার্সন</label><input type="text" id="tver" class="fi" placeholder="বাংলা ভার্সন"></div>
+        </div>
+        <div class="fr2">
+          <div class="fg"><label class="fl">গার্ডিয়ান নম্বর (শুধু অ্যাডমিন দেখবে)</label><input type="tel" id="tguardian" class="fi" placeholder="01XXXXXXXXX"></div>
+        </div>
+        <div class="fr2">
+          <div class="fg"><label class="fl">১ম কিস্তির তারিখ</label><input type="date" id="tkisti1" class="fi"></div>
+          <div class="fg"><label class="fl">২য় কিস্তির তারিখ</label><input type="date" id="tkisti2" class="fi"></div>
+        </div>
+        <div class="fg"><label class="fl">নোট</label><textarea id="tn" class="fta" placeholder="অতিরিক্ত তথ্য..."></textarea></div>
+        <button class="bsm bpri" id="postbtn" onclick="postTuition()">পোস্ট করুন</button>
+      </div>
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;flex-wrap:wrap;gap:7px">
+          <div class="card-title" style="margin-bottom:0;border:none;padding:0">সকল টিউশন (সাম্প্রতিক আবেদন উপরে)</div>
+          <div class="fbtns">
+            <button class="bsm bsec" onclick="filterT('all')">সব</button>
+            <button class="bsm bs" onclick="filterT('available')">উপলব্ধ</button>
+            <button class="bsm bd" onclick="filterT('booked')">বুকড</button>
+          </div>
+        </div>
+        <div id="tlist"></div>
+      </div>
+    </div>
+
+    <!-- ══ TIMELINE ══ -->
+    <div id="sec-timeline" class="sec" style="display:none">
+      <div class="sec-hdr"><div class="sec-title">📅 টাইমলাইন</div><button class="bkbtn" onclick="goBack()">← ফিরুন</button></div>
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;flex-wrap:wrap;gap:7px">
+          <div class="card-title" style="margin-bottom:0;border:none;padding:0">📅 <span id="tl-today-date"></span></div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <button class="pg-btn" id="tl-prev-btn" onclick="tlChangeDay(-1)">← আগের দিন</button>
+            <button class="pg-btn" id="tl-next-btn" onclick="tlChangeDay(1)">পরের দিন →</button>
+            <button class="bsm bsec" onclick="tlGoToday()">আজকে</button>
+          </div>
+        </div>
+        <div id="timeline-content"><div class="skl" style="height:70px;margin-bottom:9px"></div><div class="skl" style="height:70px"></div></div>
+      </div>
+    </div>
+
+    <!-- ══ COMMUNITY ══ -->
+    <div id="sec-community" class="sec" style="display:none">
+      <div class="sec-hdr"><div class="sec-title">কমিউনিটি মডারেশন</div><button class="bkbtn" onclick="goBack()">← ফিরুন</button></div>
+      <div class="comm-admin-box">
+        <div style="font-size:13px;font-weight:800;color:var(--mid);margin-bottom:9px;font-family:var(--fd)">✍️ অ্যাডমিন পোস্ট</div>
+        <div class="fg"><label class="fl">যার নামে পোস্ট করবেন</label><input type="text" id="admin-post-name" class="fi" placeholder="নাম (খালি = Admin)"></div>
+        <textarea class="fta" id="admin-post-content" placeholder="পোস্টের বিষয়বস্তু..." style="margin-bottom:9px"></textarea>
+        <button class="bsm bpri" onclick="adminPost()">তাৎক্ষণিক পোস্ট করুন</button>
+      </div>
+      <div class="card">
+        <div class="card-title">সব পোস্ট (অনুমোদিত)</div>
+        <div id="comm-approved-list"><div class="skl" style="height:56px"></div></div>
+      </div>
+    </div>
+
+    <!-- ══ APPLIED TUITIONS ══ -->
+    <div id="sec-applied" class="sec" style="display:none">
+      <div class="sec-hdr"><div class="sec-title">📨 আবেদনকৃত টিউশন</div><button class="bkbtn" onclick="goBack()">← ফিরুন</button></div>
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:9px;flex-wrap:wrap">
+          <input type="text" id="app-srch" class="fi" placeholder="🔍 লোকেশন / সিরিয়াল..." style="flex:1;min-width:130px" oninput="filterAppliedTuits()">
+          <select id="app-pipe-filter" class="fsel" style="flex:1;min-width:130px" onchange="filterAppliedTuits()">
+            <option value="">— সব পাইপলাইন —</option>
+            <option value="new">🆕 নতুন</option>
+            <option value="booked">📌 বুকড</option>
+            <option value="done_success">✅ সফল</option>
+            <option value="done_fail">❌ ব্যর্থ</option>
+          </select>
+        </div>
+        <div style="font-size:12px;color:#888;margin-bottom:11px" id="applied-count">লোড হচ্ছে...</div>
+        <div id="applied-list"><div class="skl" style="height:75px;margin-bottom:9px"></div><div class="skl" style="height:75px;margin-bottom:9px"></div><div class="skl" style="height:75px"></div></div>
+        <div class="pg-ctrl">
+          <div class="pg-info" id="pg-info-applied"></div>
+          <div class="pg-btns">
+            <button class="pg-btn" id="pg-prev-applied" onclick="changeAppliedPage(-1)" disabled>← আগে</button>
+            <button class="pg-btn" id="pg-next-applied" onclick="changeAppliedPage(1)">পরে →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ANALYTICS ══ -->
+    <div id="sec-analytics" class="sec" style="display:none">
+      <div class="sec-hdr"><div class="sec-title">📈 বিশ্লেষণ</div><button class="bkbtn" onclick="goBack()">← ফিরুন</button></div>
+
+      <!-- Time on site analytics -->
+      <div class="card">
+        <div class="card-title">⏱️ ওয়েবসাইটে সময় — ব্যবহারকারীরা কতক্ষণ থাকছেন</div>
+        <div class="ana-grid" id="page-ana-overview"></div>
+        <div style="margin-top:12px" id="page-ana-detail"></div>
+      </div>
+
+      <!-- 5 Tracking Links -->
+      <div class="card">
+        <div class="card-title">🔗 ৫টি ট্র্যাকিং লিঙ্ক</div>
+        <p style="font-size:12px;color:#888;margin-bottom:12px;line-height:1.7">প্রতিটি লিঙ্ক শেয়ার করুন এবং ট্র্যাক করুন কতজন ক্লিক করল, নিবন্ধন করল ও অ্যাপ ইনস্টল করল।</p>
+        <div id="track-links-admin"></div>
+      </div>
+
+      <!-- Daily Logins -->
+      <div class="card">
+        <div class="card-title">📅 দৈনিক লগইন (গত ১৪ দিন)</div>
+        <div id="daily-login-chart"></div>
+      </div>
+
+      <!-- Summary stats -->
+      <div class="card">
+        <div class="card-title">📊 সারসংক্ষেপ</div>
+        <div class="ana-grid" id="ana-overview"></div>
+      </div>
+    </div>
+
+    <!-- ══ MODS ══ -->
+    <div id="sec-mods" class="sec" style="display:none">
+      <div class="sec-hdr"><div class="sec-title">মডারেটর</div><button class="bkbtn" onclick="goBack()">← ফিরুন</button></div>
+      <div class="card"><div class="card-title">মডারেটর তালিকা ও রেফারেল</div><div id="mlist"></div></div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app-scr -->
+
+<!-- APPLICANTS MODAL -->
+<div class="mbg" id="appmod"><div class="mbox"><div class="mdg"></div><div class="mttl">আবেদনকারী (র‍্যাংকিং অনুযায়ী)<button class="mx" onclick="closeAppMod()">✕</button></div><div id="appmod-c"></div></div></div>
+<!-- PIPELINE MODAL -->
+<div class="mbg" id="pipemod"><div class="mbox"><div class="mdg"></div><div class="mttl">পাইপলাইন আপডেট<button class="mx" onclick="closePipeMod()">✕</button></div><div id="pipemod-c"></div></div></div>
+<div class="toast" id="atst"></div>
+
+<script>
+// ════════════ CONFIG ════════════
+const SBU='https://lufglfdykmvrymlszbmw.supabase.co';
+const SBK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1ZmdsZmR5a212cnltbHN6Ym13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2OTcxNjYsImV4cCI6MjA5MjI3MzE2Nn0.sGk_QrQwNI3z_deWZOO3umjm6OKJ3q_iH6k1YELhCnk';
+const sb=supabase.createClient(SBU,SBK,{auth:{persistSession:false}});
+// ⚠️ Admin credentials removed from frontend for security.
+// Admin login now checks against wsep_moderators table with role='admin'.
+// Run SQL: INSERT INTO wsep_moderators (username, password, role, referral_code, is_banned)
+//          VALUES ('rayhan', 'milliondollar', 'admin', 'ADMIN001', false);
+// Then set ADMIN_USERNAME below (password is NOT stored here anymore).
+const ADMIN_USERNAME='rayhan'; // only used to identify admin role after DB check
+const SITE_DOMAIN='wewoman.netlify.app'; // ← your actual site domain for referral links
+// Referral link: domain + ?ref- + username (identity-based, works across domain changes)
+function refLink(username){return'https://'+SITE_DOMAIN+'/?ref-'+username.toLowerCase();}
+const PAGE_SIZE=20;
+
+// ════════════ PIPELINE STATUSES ════════════
+const PIPE_STATUSES=[
+  {val:'new',label:'নতুন',icon:'🆕'},{val:'booked',label:'বুকড',icon:'📌'},
+  {val:'call_given',label:'কল দেওয়া হয়েছে',icon:'📞'},{val:'guardian_given',label:'গার্ডিয়ান নম্বর দেওয়া হয়েছে',icon:'👨‍👩‍👦'},
+  {val:'demo_done',label:'ডেমো ক্লাস হয়েছে',icon:'✏️'},{val:'first_installment',label:'১ম কিস্তি পাওয়া গেছে',icon:'💸'},
+  {val:'second_installment',label:'২য় কিস্তি পাওয়া গেছে',icon:'💰'},{val:'done_success',label:'সম্পন্ন (সফল)',icon:'✅'},
+  {val:'done_fail',label:'সম্পন্ন (ব্যর্থ)',icon:'❌'},
+];
+
+// ════════════ RANKING ════════════
+const TIER1=['ঢাকা বিশ্ববিদ্যালয়','university of dhaka','jagannath university','জগন্নাথ','jahangirnagar','জাহাঙ্গীরনগর','sir salimullah','স্যার সলিমুল্লাহ','mugda medical','মুগদা মেডিকেল','buet','বাংলাদেশ প্রকৌশল','dhaka medical college','dmc','ঢাকা মেডিকেল'];
+function uniScore(u){const ul=(u||'').toLowerCase();if(TIER1.some(t=>ul.includes(t)))return 1.3;if(ul.includes('govt')||ul.includes('সরকারি')||ul.includes('national')||ul.includes('জাতীয়')||ul.includes('buet')||ul.includes('bsmmu'))return 0.7;return 0.45;}
+function rankScore(app){let s=0;if(app.paid_media_fee_before===true)s+=2;const ct=app.current_tuitions;if(ct==='zero')s+=0.6;else if(ct==='one_two')s+=1;else if(ct==='three_four'||ct==='four_plus')s+=0.7;else s+=0.6;s+=uniScore(app.user_university);return Math.round(s*100)/100;}
+
+// ════════════ STATE ════════════
+let sess=null,allUsers=[],filteredUsers=[],allTuits=[],tFilter='all',modMap={},userPage=1,curPipeTuitId=null,selPipeStatus=null,jsonParsedData=[];
+
+// ════════════ INIT ════════════
+window.addEventListener('load',async()=>{
+  await new Promise(r=>setTimeout(r,700));
+  document.getElementById('ldg').style.display='none';
+  const s=localStorage.getItem('wsep_admin');
+  if(s){try{sess=JSON.parse(s);showApp();}catch{showLogin();}}else showLogin();
+});
+function showLogin(){document.getElementById('login-scr').style.display='flex';}
+function showApp(){
+  document.getElementById('login-scr').style.display='none';
+  document.getElementById('app-scr').style.display='block';
+  document.getElementById('snm').textContent=sess.username;
+  document.getElementById('srl').textContent=sess.role==='admin'?'🔴 অ্যাডমিন':'🟡 মডারেটর';
+  // Mods tab — admin only
+  if(sess.role!=='admin'){document.getElementById('mod-tab').style.display='none';}
+  // Analytics tab — visible to ALL (admin + moderators)
+  // (no hide needed — it's already in the tab nav for everyone)
+  loadDash();loadNotifs();
+}
+async function doLogin(){
+  const u=document.getElementById('lu').value.trim(),p=document.getElementById('lp').value.trim();
+  const btn=document.getElementById('lbtn'),er=document.getElementById('lerr');
+  er.style.display='none';btn.disabled=true;btn.textContent='যাচাই হচ্ছে...';
+  try{
+    const{data,error}=await sb.from('wsep_moderators').select('*').eq('username',u).maybeSingle();
+    if(error)throw error;
+    if(!data){er.textContent='ভুল ইউজারনেম বা পাসওয়ার্ড।';er.style.display='block';}
+    else if(data.password!==p){er.textContent='ভুল ইউজারনেম বা পাসওয়ার্ড।';er.style.display='block';}
+    else if(data.is_banned){er.textContent='এই অ্যাকাউন্ট ব্যান করা হয়েছে।';er.style.display='block';}
+    else if(data.role==='admin'||data.username===ADMIN_USERNAME){
+      sess={username:data.username,role:'admin',ref_code:data.referral_code,mod_id:data.id};
+      localStorage.setItem('wsep_admin',JSON.stringify(sess));showApp();
+    }
+    else{
+      sess={username:data.username,role:'moderator',ref_code:data.referral_code,ref_count:data.referral_count||0,mod_id:data.id};
+      localStorage.setItem('wsep_admin',JSON.stringify(sess));showApp();
+    }
+  }catch(e){er.textContent='সংযোগ সমস্যা: '+e.message;er.style.display='block';}
+  btn.disabled=false;btn.textContent='প্রবেশ করুন →';
+}
+function doLogout(){sess=null;localStorage.removeItem('wsep_admin');document.getElementById('app-scr').style.display='none';showLogin();}
+
+// ════════════ SECTIONS ════════════
+function showSec(sec,el){
+  document.querySelectorAll('.sec').forEach(s=>s.style.display='none');
+  document.querySelectorAll('.tnav').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sec-'+sec).style.display='block';
+  if(el)el.classList.add('active');
+  const loaders={dash:loadDash,jobsboard:loadJobsboard,users:loadUsers,tuitions:loadTuitions,applied:loadAppliedTuitions,timeline:loadTimeline,community:loadCommunityMod,analytics:loadAnalytics,mods:loadMods};
+  if(loaders[sec])loaders[sec]();
+}
+function goBack(){document.querySelectorAll('.tnav').forEach(b=>b.classList.remove('active'));document.querySelector('.tnav').classList.add('active');document.querySelectorAll('.sec').forEach(s=>s.style.display='none');document.getElementById('sec-dash').style.display='block';loadDash();}
+
+// ════════════ NOTIFICATIONS ════════════
+async function loadNotifs(){
+  if(sess.role!=='moderator')return;
+  const{data}=await sb.from('wsep_mod_notifications').select('*').eq('mod_username',sess.username).order('created_at',{ascending:false}).limit(20);
+  const notifs=data||[];const unread=notifs.filter(n=>!n.is_read).length;
+  const badge=document.getElementById('notif-badge');badge.textContent=unread>9?'9+':unread||'';badge.classList.toggle('show',unread>0);
+  document.getElementById('notif-list').innerHTML=notifs.length?notifs.map(n=>`<div class="notif-item" style="${!n.is_read?'background:rgba(201,24,74,.04)':''}"><strong>🎉 টিউটর সিলেক্ট!</strong>${n.tutor_name} — ${n.tutor_phone}<br><span style="font-size:11px;color:#aaa">${new Date(n.created_at).toLocaleString('bn-BD')}</span></div>`).join(''):'<div class="notif-empty">কোনো নোটিফিকেশন নেই</div>';
+}
+function toggleNotif(){document.getElementById('notif-drop').classList.toggle('open');}
+async function markNotifsRead(){if(sess.role!=='moderator')return;await sb.from('wsep_mod_notifications').update({is_read:true}).eq('mod_username',sess.username).eq('is_read',false);document.getElementById('notif-badge').classList.remove('show');document.getElementById('notif-drop').classList.remove('open');loadNotifs();}
+document.addEventListener('click',e=>{const bell=document.querySelector('.notif-bell');const drop=document.getElementById('notif-drop');if(drop&&bell&&!bell.contains(e.target)&&!drop.contains(e.target))drop.classList.remove('open');});
+
+// ════════════ DASHBOARD ════════════
+async function loadDash(){
+  const[ur,tr,ar]=await Promise.all([
+    sb.from('wsep_users').select('id,name,university,created_at',{count:'exact'}).order('created_at',{ascending:false}).limit(5),
+    sb.from('wsep_tuitions').select('id,status',{count:'exact'}),
+    sb.from('wsep_applications').select('id',{count:'exact'})
+  ]);
+  const uc=ur.count||0,tc=tr.count||0,ac=ar.count||0,avail=(tr.data||[]).filter(t=>t.status==='available').length;
+  document.getElementById('dash-stats').innerHTML=`<div class="stat"><div class="stat-n">${uc}</div><div class="stat-l">মোট ব্যবহারকারী</div></div><div class="stat"><div class="stat-n">${tc}</div><div class="stat-l">মোট টিউশন</div></div><div class="stat"><div class="stat-n">${avail}</div><div class="stat-l">উপলব্ধ টিউশন</div></div><div class="stat"><div class="stat-n">${ac}</div><div class="stat-l">মোট আবেদন</div></div>`;
+  if(sess.role==='admin')document.getElementById('upload-json-area').style.display='block';
+  if(sess.role==='moderator'){
+    const refUrl=refLink(sess.username);
+    document.getElementById('mod-ref-banner').style.display='block';
+    document.getElementById('mod-ref-link').textContent=refUrl;
+    const[{data:mData},{data:clickData}]=await Promise.all([
+      sb.from('wsep_moderators').select('referral_count').eq('referral_code',sess.ref_code).maybeSingle(),
+      sb.from('wsep_zone_clicks').select('registered,installed')
+    ]);
+    const regCount=mData?mData.referral_count||0:0;
+    const clicks=(clickData||[]).length;
+    const installs=(clickData||[]).filter(c=>c.installed).length;
+    document.getElementById('mod-ref-num').textContent=regCount;
+    // Update banner to show all 3 stats
+    const banner=document.getElementById('mod-ref-banner');
+    const statsHtml=`
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:10px 0">
+        <div style="background:rgba(201,24,74,.06);border-radius:10px;padding:10px;text-align:center">
+          <div style="font-size:22px;font-weight:900;color:var(--rose);font-family:var(--fd)">${clicks}</div>
+          <div style="font-size:10px;color:#888">লিঙ্ক ক্লিক</div>
+        </div>
+        <div style="background:rgba(59,130,246,.06);border-radius:10px;padding:10px;text-align:center">
+          <div style="font-size:22px;font-weight:900;color:#1d4ed8;font-family:var(--fd)">${regCount}</div>
+          <div style="font-size:10px;color:#888">নিবন্ধন</div>
+        </div>
+        <div style="background:rgba(34,197,94,.06);border-radius:10px;padding:10px;text-align:center">
+          <div style="font-size:22px;font-weight:900;color:#16a34a;font-family:var(--fd)">${installs}</div>
+          <div style="font-size:10px;color:#888">ইনস্টল</div>
+        </div>
+      </div>`;
+    // Insert stats grid after ref link
+    const refBox=document.getElementById('mod-ref-link');
+    // Remove old stats grid if already rendered
+    const oldGrid=banner.querySelector('.mod-stats-grid');if(oldGrid)oldGrid.remove();
+    const gridDiv=document.createElement('div');gridDiv.className='mod-stats-grid';gridDiv.innerHTML=statsHtml;
+    refBox.insertAdjacentElement('afterend',gridDiv);
+  }
+  const recent=ur.data||[];
+  document.getElementById('recent-list').innerHTML=recent.length?`<div class="tbl-wrap"><table><thead><tr><th>নাম</th><th>বিশ্ববিদ্যালয়</th><th>তারিখ</th></tr></thead><tbody>${recent.map(u=>`<tr><td><strong>${u.name}</strong></td><td style="font-size:11px">${u.university}</td><td style="font-size:11px;color:#aaa">${new Date(u.created_at).toLocaleDateString('bn-BD')}</td></tr>`).join('')}</tbody></table></div>`:'<div class="no-data">কোনো ব্যবহারকারী নেই</div>';
+}
+function copyRef(){navigator.clipboard.writeText(refLink(sess.username)).then(()=>toast('লিঙ্ক কপি হয়েছে! 📋'));}
+
+// ════════════ JSON UPLOAD ════════════
+function previewJSON(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      jsonParsedData=Array.isArray(data)?data:[data];
+      document.getElementById('json-count').textContent=jsonParsedData.length;
+      document.getElementById('json-preview-content').textContent=JSON.stringify(jsonParsedData.slice(0,3),null,2)+(jsonParsedData.length>3?'\n...':'');
+      document.getElementById('json-preview-box').classList.add('show');
+    }catch{toast('JSON ফাইল ভুল ফরম্যাট');}
+  };
+  reader.readAsText(file);
+}
+async function uploadJSONTuitions(){
+  if(!jsonParsedData.length)return;
+  const btn=document.querySelector('[onclick="uploadJSONTuitions()"]');if(btn){btn.disabled=true;btn.textContent='আপলোড হচ্ছে...';}
+  let ok=0,fail=0;
+  for(const item of jsonParsedData){
+    const isF34=item.F34===true||item.f34===true;
+    const row={location:item.location||'',salary:parseInt(item.salary||0),class:item.class||'',medium:item.medium||'বাংলা মিডিয়াম',days:item.days||null,time_slot:item.time_slot||null,zone:String(item.zone||'3'),guardian_phone:item.guardian_phone||null,note:item.note||null,posted_by:sess.username,status:'available',pipeline_status:'new',show_on_site:!isF34,is_f34:isF34};
+    if(!row.location||!row.salary||!row.class){fail++;continue;}
+    const{error}=await sb.from('wsep_tuitions').insert([row]);
+    if(error)fail++;else ok++;
+  }
+  toast(`আপলোড: ${ok}টি সফল, ${fail}টি ব্যর্থ`);
+  document.getElementById('json-preview-box').classList.remove('show');
+  jsonParsedData=[];if(btn){btn.disabled=false;btn.textContent='✅ আপলোড করুন';}
+  document.getElementById('json-file-input').value='';
+}
+
+// ════════════ JOBSBOARD ════════════
+async function loadJobsboard(){
+  const el=document.getElementById('jobsboard-list');el.innerHTML=`<div class="skl" style="height:70px;margin-bottom:9px"></div><div class="skl" style="height:70px"></div>`;
+  const refCode=sess.ref_code||'';
+  const{data:myUsers}=await sb.from('wsep_users').select('id,name,whatsapp').eq('referral_code',refCode);
+  if(!myUsers||!myUsers.length){el.innerHTML='<div class="no-data">আপনার রেফার করা কোনো টিউটর সিলেক্ট হয়নি।</div>';return;}
+  const myIds=myUsers.map(u=>u.id);
+  const{data:apps}=await sb.from('wsep_applications').select('*').in('user_id',myIds).eq('is_selected',true);
+  if(!apps||!apps.length){el.innerHTML='<div class="no-data">আপনার রেফার করা কোনো টিউটর সিলেক্ট হয়নি।</div>';return;}
+  const tids=[...new Set(apps.map(a=>a.tuition_id))];
+  const{data:tuits}=await sb.from('wsep_tuitions').select('*').in('id',tids);
+  const tm={};(tuits||[]).forEach(t=>{tm[t.id]=t;});
+  const um={};myUsers.forEach(u=>{um[u.id]=u;});
+  el.innerHTML=apps.map(a=>{
+    const t=tm[a.tuition_id]||{};const u=um[a.user_id]||{};
+    const ps=PIPE_STATUSES.find(p=>p.val===(t.pipeline_status||'new'))||PIPE_STATUSES[0];
+    return `<div class="mjb-card">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+        <div><div class="mjb-loc">📍 ${t.location||'—'}${t.serial_no?` #${t.serial_no}`:''}</div><div class="mjb-sal">৳${Number(t.salary||0).toLocaleString()}/মাস • ${t.class||''}</div></div>
+        <span class="pipe-badge pipe-${t.pipeline_status||'new'}">${ps.icon} ${ps.label}</span>
+      </div>
+      <div class="mjb-tutor"><div class="mjb-tutor-title">✅ সিলেক্টেড টিউটর</div><div style="font-size:13px;font-weight:800;color:#14532d">${u.name||a.user_name||'—'}</div><div style="font-size:12px;color:#15803d;margin-top:2px">📱 ${u.whatsapp||a.user_phone||'—'}</div></div>
+      ${t.kisti1_date?`<div style="font-size:11px;color:#c06000;margin-bottom:5px">💸 ১ম কিস্তি: ${t.kisti1_date} | 💰 ২য় কিস্তি: ${t.kisti2_date||'—'}</div>`:''}
+      ${t.pipeline_note?`<div style="font-size:11px;color:#666;padding:6px 8px;background:rgba(201,24,74,.03);border-radius:7px;margin-bottom:7px">${t.pipeline_note}</div>`:''}
+      <button class="bsm bblue" onclick="openPipeMod('${t.id}','${t.pipeline_status||'new'}')">✏️ পাইপলাইন আপডেট</button>
+    </div>`;
+  }).join('');
+}
+
+// ════════════ USERS ════════════
+async function loadUsers(){
+  document.getElementById('utbody').innerHTML='<tr><td colspan="9" style="text-align:center;padding:20px"><div class="skl" style="width:50%;margin:0 auto"></div></td></tr>';
+  const[uRes,mRes]=await Promise.all([
+    (()=>{let q=sb.from('wsep_users').select('*').order('created_at',{ascending:false});return q;})(),
+    sb.from('wsep_moderators').select('referral_code,username')
+  ]);
+  allUsers=uRes.data||[];modMap={};(mRes.data||[]).forEach(m=>{modMap[m.referral_code]=m.username;});
+  userPage=1;filterUsers();
+}
+function filterUsers(){
+  const q=(document.getElementById('usrch').value||'').toLowerCase(),uni=(document.getElementById('usrch-uni').value||'').toLowerCase();
+  filteredUsers=allUsers.filter(u=>(!q||(u.name||'').toLowerCase().includes(q)||(u.whatsapp||'').includes(q))&&(!uni||(u.university||'').toLowerCase().includes(uni)));
+  userPage=1;renderUsers();
+}
+function renderUsers(){
+  const total=filteredUsers.length,tp=Math.ceil(total/PAGE_SIZE)||1,start=(userPage-1)*PAGE_SIZE,end=Math.min(start+PAGE_SIZE,total);
+  const pageU=filteredUsers.slice(start,end);
+  document.getElementById('ucnt').textContent=`মোট: ${total} জন`;
+  document.getElementById('pg-info-u').textContent=`পেজ ${userPage}/${tp} — ${start+1}–${end}`;
+  document.getElementById('pg-prev-u').disabled=userPage<=1;document.getElementById('pg-next-u').disabled=userPage>=tp;
+  const tb=document.getElementById('utbody');
+  if(!pageU.length){tb.innerHTML='<tr><td colspan="10" class="no-data">কোনো ব্যবহারকারী নেই</td></tr>';return;}
+  tb.innerHTML=pageU.map((u,i)=>`<tr><td>${start+i+1}</td><td><strong>${u.name}</strong></td><td>${u.whatsapp}</td><td style="font-size:11px;max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${u.university}</td><td>${u.year||'—'}</td><td>${u.parents_phone}</td><td style="font-size:11px">${u.referral_code?modMap[u.referral_code]||u.referral_code:'সরাসরি'}</td><td style="font-weight:700;color:#16a34a">৳${Number(u.balance||0).toLocaleString()}<br><button class="bal-btn" data-uid="${u.id}" data-bal="${u.balance||0}" data-name="${(u.name||'').replace(/"/g,'&quot;')}" style="font-size:10px;padding:2px 7px;background:#f0fdf4;border:1px solid #86efac;color:#16a34a;border-radius:5px;cursor:pointer;margin-top:3px">✏️ আপডেট</button></td><td style="font-size:11px;color:#aaa">${new Date(u.created_at).toLocaleDateString('bn-BD')}</td></tr>`).join('');
+  // Attach click handlers safely after rendering
+  document.querySelectorAll('.bal-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>editBalance(btn.dataset.uid,Number(btn.dataset.bal),btn.dataset.name));
+  });
+}
+function changePage(d){userPage+=d;renderUsers();}
+function copyUserList(){const rows=filteredUsers.slice((userPage-1)*PAGE_SIZE,userPage*PAGE_SIZE);navigator.clipboard.writeText(rows.map((u,i)=>`${(userPage-1)*PAGE_SIZE+i+1}. ${u.name} | ${u.whatsapp} | ${u.university}`).join('\n')).then(()=>toast('কপি হয়েছে! 📋'));}
+async function editBalance(userId,currentBal,userName){
+  const newBal=prompt(`${userName}-এর বর্তমান ব্যালেন্স: ৳${currentBal}\n\nনতুন ব্যালেন্স দিন (টাকায়):`);
+  if(newBal===null||newBal==='')return;
+  const amt=parseInt(newBal);
+  if(isNaN(amt)||amt<0)return toast('সঠিক পরিমাণ দিন (শূন্য বা তার বেশি)');
+  try{
+    const{error}=await sb.from('wsep_users').update({balance:amt}).eq('id',userId);
+    if(error)throw error;
+    toast(`✅ ${userName}-এর ব্যালেন্স ৳${amt} করা হয়েছে`);
+    const u=allUsers.find(u=>u.id===userId);if(u)u.balance=amt;
+    renderUsers();
+  }catch(e){toast('ব্যালেন্স আপডেট হয়নি: '+(e.message||'অজানা সমস্যা'));console.error(e);}
+}
+
+// ════════════ TUITIONS ════════════
+async function loadTuitions(){
+  if(sess.role==='admin')document.getElementById('post-form-card').style.display='block';
+  document.getElementById('tlist').innerHTML=Array(3).fill('').map(()=>`<div class="skl" style="height:70px;margin-bottom:9px"></div>`).join('');
+  // Sort by most recent application first, then by created_at
+  const q=sess.role==='admin'?sb.from('wsep_tuitions').select('*').order('created_at',{ascending:false}):sb.from('wsep_tuitions').select('id,location,salary,class,medium,days,time_slot,version,serial_no,status,note,show_on_site,pipeline_status,pipeline_note,pipeline_updated_by,zone,is_f34,kisti1_date,kisti2_date,created_at').order('created_at',{ascending:false});
+  const[{data:tuits},{data:apps}]=await Promise.all([q,sb.from('wsep_applications').select('tuition_id,created_at').order('created_at',{ascending:false})]);
+  allTuits=tuits||[];
+  // Map latest app time per tuition
+  const latestApp={};(apps||[]).forEach(a=>{if(!latestApp[a.tuition_id]||new Date(a.created_at)>new Date(latestApp[a.tuition_id]))latestApp[a.tuition_id]=a.created_at;});
+  allTuits.sort((a,b)=>{const la=latestApp[a.id]||a.created_at,lb=latestApp[b.id]||b.created_at;return new Date(lb)-new Date(la);});
+  const{data:mods}=await sb.from('wsep_moderators').select('referral_code,username');
+  modMap={};(mods||[]).forEach(m=>{modMap[m.referral_code]=m.username;});
+  // Count new apps per tuition (unselected)
+  const newAppCount={};(apps||[]).forEach(a=>{newAppCount[a.tuition_id]=(newAppCount[a.tuition_id]||0)+1;});
+  renderTuits(newAppCount);
+}
+async function renderTuits(newAppCount={}){
+  const el=document.getElementById('tlist');const isAdmin=sess.role==='admin';
+  const filtered=allTuits.filter(t=>tFilter==='all'||t.status===tFilter);
+  if(!filtered.length){el.innerHTML='<div class="no-data">কোনো টিউশন নেই</div>';return;}
+  el.innerHTML=filtered.map(t=>{
+    const ps=PIPE_STATUSES.find(p=>p.val===(t.pipeline_status||'new'))||PIPE_STATUSES[0];
+    const hasNew=(newAppCount[t.id]||0)>0&&t.pipeline_status!=='done_success';
+    return `<div class="tcard">
+      <div class="tcard-serial">#${t.serial_no||'—'}</div>
+      <div class="tcard-loc">📍 ${t.location}</div>
+      <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:7px">
+        <div class="tcard-sal">৳${Number(t.salary).toLocaleString()}/মাস</div>
+        <span class="badge ${t.status==='available'?'bg':'br'}">${t.status==='available'?'উপলব্ধ':'বুকড'}</span>
+        ${isAdmin?`<span class="badge ${t.show_on_site?'bg':'br'}" style="font-size:10px">${t.show_on_site?'সাইটে':'লুকানো'}</span>`:''}
+        ${t.is_f34?'<span class="badge bp2" style="font-size:10px">F34</span>':''}
+      </div>
+      <div class="tcard-tags">
+        <span class="tcard-tag">📚 ${t.class}</span><span class="tcard-tag">🗣️ ${t.medium}</span>
+        ${t.days?`<span class="tcard-tag">📅 ${t.days}</span>`:''}${t.time_slot?`<span class="tcard-tag">⏰ ${t.time_slot}</span>`:''}${t.version?`<span class="tcard-tag">📖 ${t.version}</span>`:''}
+      </div>
+      ${isAdmin&&t.guardian_phone?`<div style="font-size:12px;color:var(--rose);font-weight:700;margin-bottom:6px;background:rgba(201,24,74,.06);padding:5px 9px;border-radius:7px">👨‍👩‍👦 গার্ডিয়ান: ${t.guardian_phone}</div>`:''}
+      ${t.kisti1_date?`<div style="font-size:11px;color:#c06000;margin-bottom:6px">💸 ১ম কিস্তি: ${t.kisti1_date} | 💰 ২য় কিস্তি: ${t.kisti2_date||'—'}</div>`:''}
+      ${t.note?`<div class="tcard-note">${t.note}</div>`:''}
+      <div style="margin-bottom:7px"><span class="pipe-badge pipe-${t.pipeline_status||'new'}">${ps.icon} ${ps.label}</span></div>
+      ${t.pipeline_note?`<div style="font-size:11px;color:#888;margin-bottom:7px;padding:5px 8px;background:rgba(201,24,74,.03);border-radius:6px">📝 ${t.pipeline_note}</div>`:''}
+      <div class="tcard-meta">পোস্ট: ${t.posted_by||''} • ${new Date(t.created_at).toLocaleDateString('bn-BD')}</div>
+      <div class="tcard-actions">
+        ${isAdmin?`<button class="bsm ${t.status==='available'?'bd':'bs'}" onclick="toggleStatus('${t.id}','${t.status}')">${t.status==='available'?'বুকড করুন':'উপলব্ধ করুন'}</button>`:''}
+        ${isAdmin?`<button class="bsm borange" onclick="toggleSiteVis('${t.id}',${t.show_on_site})">${t.show_on_site?'লুকান':'দেখান'}</button>`:''}
+        <button class="bsm bsec" onclick="viewApplicants('${t.id}')">আবেদনকারী দেখুন${hasNew?'<span class="new-app-dot"></span>':''}</button>
+        <button class="bsm bblue" onclick="openPipeMod('${t.id}','${t.pipeline_status||'new'}')">✏️ পাইপলাইন</button>
+        ${isAdmin?`<button class="bsm bd" onclick="delTuit('${t.id}')">মুছুন</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+function filterT(f){tFilter=f;renderTuits();}
+async function postTuition(){
+  const loc=document.getElementById('tl').value.trim(),sal=parseInt(document.getElementById('ts').value),cls=document.getElementById('tc').value.trim(),med=document.getElementById('tm').value,zone=document.getElementById('tzone').value;
+  const days=document.getElementById('td').value.trim(),time_slot=document.getElementById('ttime').value.trim(),version=document.getElementById('tver').value.trim(),note=document.getElementById('tn').value.trim(),guardian_phone=document.getElementById('tguardian').value.trim()||null,kisti1_date=document.getElementById('tkisti1').value||null,kisti2_date=document.getElementById('tkisti2').value||null;
+  if(!loc||!sal||!cls||!med||!zone)return toast('সব প্রয়োজনীয় তথ্য দিন (জোনসহ)');
+  const btn=document.getElementById('postbtn');btn.disabled=true;btn.textContent='পোস্ট হচ্ছে...';
+  const{error}=await sb.from('wsep_tuitions').insert([{location:loc,salary:sal,class:cls,medium:med,days:days||null,time_slot:time_slot||null,version:version||null,note:note||null,zone,posted_by:sess.username,status:'available',pipeline_status:'new',show_on_site:true,guardian_phone,kisti1_date,kisti2_date}]);
+  if(!error){toast('টিউশন পোস্ট হয়েছে! ✅');['tl','ts','tc','tn','td','ttime','tver','tguardian','tkisti1','tkisti2'].forEach(id=>document.getElementById(id).value='');document.getElementById('tm').value='';document.getElementById('tzone').value='';allTuits=[];loadTuitions();}
+  else toast('পোস্ট হয়নি: '+error.message);
+  btn.disabled=false;btn.textContent='পোস্ট করুন';
+}
+async function toggleStatus(id,cur){if(sess.role!=='admin')return;const ns=cur==='available'?'booked':'available';await sb.from('wsep_tuitions').update({status:ns}).eq('id',id);if(ns==='booked'){await sb.from('wsep_tuitions').update({show_on_site:false}).eq('id',id);}const t=allTuits.find(t=>t.id===id);if(t){t.status=ns;if(ns==='booked')t.show_on_site=false;}renderTuits();}
+async function toggleSiteVis(id,cur){if(sess.role!=='admin')return;await sb.from('wsep_tuitions').update({show_on_site:!cur}).eq('id',id);const t=allTuits.find(t=>t.id===id);if(t)t.show_on_site=!cur;renderTuits();toast('ভিজিবিলিটি আপডেট');}
+async function delTuit(id){if(sess.role!=='admin')return;if(!confirm('মুছবেন?'))return;await sb.from('wsep_tuitions').delete().eq('id',id);allTuits=allTuits.filter(t=>t.id!==id);renderTuits();toast('মুছে ফেলা হয়েছে');}
+
+// ════════════ PIPELINE MODAL ════════════
+function openPipeMod(tid,cur){
+  curPipeTuitId=tid;selPipeStatus=cur||'new';
+  const t=allTuits.find(t=>t.id===tid)||{};
+  document.getElementById('pipemod-c').innerHTML=`
+    <div style="font-size:13px;font-weight:700;color:var(--deep);margin-bottom:10px">📍 ${t.location||''}</div>
+    <div style="font-size:12px;font-weight:700;color:var(--mid);margin-bottom:8px">স্ট্যাটাস বেছে নিন:</div>
+    <div class="pipe-opts" id="pipe-opts">${PIPE_STATUSES.map(p=>`<button class="pipe-opt ${selPipeStatus===p.val?'active':''}" onclick="selPipe('${p.val}',this)">${p.icon} ${p.label}</button>`).join('')}</div>
+    <div style="font-size:12px;font-weight:700;color:var(--mid);margin-bottom:6px">কিস্তির তারিখ:</div>
+    <div style="display:flex;gap:9px;margin-bottom:11px;flex-wrap:wrap">
+      <div style="flex:1;min-width:130px"><label style="font-size:10px;color:#aaa;font-weight:600;display:block;margin-bottom:3px">১ম কিস্তি</label><input type="date" class="kisti-date-fi" id="pipe-kisti1" value="${t.kisti1_date||''}"></div>
+      <div style="flex:1;min-width:130px"><label style="font-size:10px;color:#aaa;font-weight:600;display:block;margin-bottom:3px">২য় কিস্তি</label><input type="date" class="kisti-date-fi" id="pipe-kisti2" value="${t.kisti2_date||''}"></div>
+    </div>
+    <div style="font-size:12px;font-weight:700;color:var(--mid);margin-bottom:6px">নোট:</div>
+    <textarea class="pipe-note-fi" id="pipe-note" placeholder="অতিরিক্ত তথ্য...">${t.pipeline_note||''}</textarea>
+    <button class="pipe-save-btn" onclick="savePipeline()">আপডেট সেভ করুন ✓</button>`;
+  document.getElementById('pipemod').classList.add('open');
+}
+function closePipeMod(){document.getElementById('pipemod').classList.remove('open');}
+document.getElementById('pipemod').addEventListener('click',e=>{if(e.target===document.getElementById('pipemod'))closePipeMod();});
+function selPipe(val,el){selPipeStatus=val;document.querySelectorAll('.pipe-opt').forEach(b=>b.classList.remove('active'));el.classList.add('active');}
+async function savePipeline(){
+  if(!curPipeTuitId)return;
+  const note=document.getElementById('pipe-note').value.trim();
+  const kisti1=document.getElementById('pipe-kisti1').value||null;
+  const kisti2=document.getElementById('pipe-kisti2').value||null;
+  const{error}=await sb.from('wsep_tuitions').update({pipeline_status:selPipeStatus,pipeline_note:note||null,pipeline_updated_by:sess.username,pipeline_updated_at:new Date().toISOString(),kisti1_date:kisti1,kisti2_date:kisti2}).eq('id',curPipeTuitId);
+  if(!error){const t=allTuits.find(t=>t.id===curPipeTuitId);if(t){t.pipeline_status=selPipeStatus;t.pipeline_note=note;t.pipeline_updated_by=sess.username;t.kisti1_date=kisti1;t.kisti2_date=kisti2;}closePipeMod();renderTuits();toast('পাইপলাইন আপডেট হয়েছে ✅');if(document.getElementById('sec-jobsboard').style.display!=='none')loadJobsboard();}
+  else toast('আপডেট হয়নি: '+error.message);
+}
+
+// ════════════ TIMELINE ════════════
+let tlOffset=0; // 0=today, -1=yesterday, etc.
+function tlGoToday(){tlOffset=0;loadTimeline();}
+function tlChangeDay(d){tlOffset+=d;loadTimeline();}
+
+async function loadTimeline(){
+  const el=document.getElementById('timeline-content');
+  const targetDate=new Date();targetDate.setDate(targetDate.getDate()+tlOffset);
+  const todayStr=new Date().toISOString().split('T')[0];
+  const dateStr=targetDate.toISOString().split('T')[0];
+  const isToday=dateStr===todayStr;
+  document.getElementById('tl-today-date').textContent=isToday?'আজকের কার্যক্রম — '+targetDate.toLocaleDateString('bn-BD',{weekday:'long',year:'numeric',month:'long',day:'numeric'}):targetDate.toLocaleDateString('bn-BD',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  el.innerHTML=`<div class="skl" style="height:65px;margin-bottom:9px"></div><div class="skl" style="height:65px;margin-bottom:9px"></div><div class="skl" style="height:65px"></div>`;
+  const[{data:apps},{data:tuits}]=await Promise.all([
+    sb.from('wsep_applications').select('*').eq('is_selected',true),
+    sb.from('wsep_tuitions').select('*')
+  ]);
+  const tm={};(tuits||[]).forEach(t=>{tm[t.id]=t;});
+  // Selected on this date (pipeline_updated_at matches dateStr)
+  const daySel=(apps||[]).filter(a=>{const t=tm[a.tuition_id];return t&&t.pipeline_updated_at&&t.pipeline_updated_at.startsWith(dateStr)&&(t.pipeline_status==='booked'||t.pipeline_status==='call_given');});
+  // Kisti 1 on this date
+  const kisti1Day=(tuits||[]).filter(t=>t.kisti1_date===dateStr&&t.pipeline_status!=='done_success');
+  // Kisti 2 on this date
+  const kisti2Day=(tuits||[]).filter(t=>t.kisti2_date===dateStr&&t.pipeline_status!=='done_success');
+  // Map tuition_id -> selected applicant
+  const selApps=apps||[];
+  const tuitSelMap={};selApps.forEach(a=>{if(!tuitSelMap[a.tuition_id])tuitSelMap[a.tuition_id]=a;});
+  let html='';
+  // Selections for this day
+  const selLabel=isToday?'আজকে':'এই দিনে';
+  html+=`<div class="tl-section"><div class="tl-sec-title">🎉 ${selLabel} সিলেক্ট হয়েছেন (${daySel.length})</div>`;
+  if(!daySel.length)html+=`<div style="font-size:12px;color:#aaa;margin-bottom:8px">${selLabel} কোনো সিলেকশন নেই।</div>`;
+  daySel.forEach(a=>{const t=tm[a.tuition_id]||{};
+    const ck1=localStorage.getItem(`tick_${a.id}_call_check`)==='1';
+    const ck2=localStorage.getItem(`tick_${a.id}_number_given`)==='1';
+    html+=`<div class="tl-item"><strong>${a.user_name}</strong> — 📱 ${a.user_phone}<br>📍 ${t.location||'—'} | ৳${Number(t.salary||0).toLocaleString()}/মাস<div class="tl-tick"><input type="checkbox" id="tc1-${a.id}" ${ck1?'checked':''} onchange="saveTickCheck('${a.id}','call_check',this.checked)"><label for="tc1-${a.id}">📞 কল দেওয়া হয়েছে</label><input type="checkbox" id="tc2-${a.id}" style="margin-left:10px" ${ck2?'checked':''} onchange="saveTickCheck('${a.id}','number_given',this.checked)"><label for="tc2-${a.id}">📲 নম্বর দেওয়া হয়েছে</label></div></div>`;
+  });
+  html+='</div>';
+  // Kisti 1 for this day
+  html+=`<div class="tl-section"><div class="tl-sec-title">💸 ${selLabel} ১ম কিস্তি পাবেন (${kisti1Day.length})</div>`;
+  if(!kisti1Day.length)html+=`<div style="font-size:12px;color:#aaa;margin-bottom:8px">${selLabel} কোনো ১ম কিস্তি নেই।</div>`;
+  kisti1Day.forEach(t=>{const a=tuitSelMap[t.id];html+=`<div class="tl-item"><strong>${a?a.user_name:'— (কোনো টিউটর সিলেক্ট নেই)'}</strong>${a?` — 📱 ${a.user_phone}`:''}<br>📍 ${t.location||'—'} | ৳${Number(t.salary||0).toLocaleString()}/মাস | ১ম কিস্তি: ৳${(1000).toLocaleString()}</div>`;});
+  html+='</div>';
+  // Kisti 2 for this day
+  html+=`<div class="tl-section"><div class="tl-sec-title">💰 ${selLabel} ২য় কিস্তি পাবেন (${kisti2Day.length})</div>`;
+  if(!kisti2Day.length)html+=`<div style="font-size:12px;color:#aaa;margin-bottom:8px">${selLabel} কোনো ২য় কিস্তি নেই।</div>`;
+  kisti2Day.forEach(t=>{const a=tuitSelMap[t.id];const total=Math.round((t.salary||0)*0.5713);const rest=total-1000;html+=`<div class="tl-item"><strong>${a?a.user_name:'— (কোনো টিউটর সিলেক্ট নেই)'}</strong>${a?` — 📱 ${a.user_phone}`:''}<br>📍 ${t.location||'—'} | ২য় কিস্তি: ৳${rest.toLocaleString()}</div>`;});
+  html+='</div>';
+  el.innerHTML=html||`<div class="no-data">${selLabel} কোনো কার্যক্রম নেই।</div>`;
+}
+function saveTickCheck(appId,field,checked){localStorage.setItem(`tick_${appId}_${field}`,checked?'1':'0');}
+
+// ════════════ APPLICANTS ════════════
+async function viewApplicants(tid){
+  document.getElementById('appmod-c').innerHTML=`<div class="skl" style="height:65px;margin-bottom:8px"></div><div class="skl" style="height:65px"></div>`;
+  document.getElementById('appmod').classList.add('open');
+  if(!Object.keys(modMap).length){const{data:mds}=await sb.from('wsep_moderators').select('referral_code,username');(mds||[]).forEach(m=>{modMap[m.referral_code]=m.username;});}
+  const{data:apps}=await sb.from('wsep_applications').select('*').eq('tuition_id',tid).order('created_at',{ascending:true});
+  if(!apps||!apps.length){document.getElementById('appmod-c').innerHTML='<div class="no-data">কোনো আবেদন নেই</div>';return;}
+  let guardianPhone='';
+  if(sess.role==='admin'){const t=allTuits.find(t=>t.id===tid);guardianPhone=t?t.guardian_phone||'':'';}
+  const uids=apps.map(a=>a.user_id).filter(Boolean);
+  const{data:uds}=await sb.from('wsep_users').select('id,referral_code').in('id',uids);
+  const urm={};(uds||[]).forEach(u=>{urm[u.id]=u.referral_code;});
+  const scored=apps.map(a=>({...a,_score:rankScore(a),_ref:urm[a.user_id]||''})).sort((a,b)=>b._score-a._score||(new Date(a.created_at)-new Date(b.created_at)));
+  const isAdmin=sess.role==='admin';
+  const tuit=allTuits.find(t=>t.id===tid)||{};
+  document.getElementById('appmod-c').innerHTML=(isAdmin&&guardianPhone?`<div style="background:rgba(201,24,74,.07);border:1px solid rgba(201,24,74,.2);border-radius:9px;padding:9px 12px;margin-bottom:11px;font-size:13px;color:var(--rose);font-weight:700">👨‍👩‍👦 গার্ডিয়ান: ${guardianPhone}</div>`:'')+scored.map((a,idx)=>{
+    const refCode=a._ref,modName=refCode?modMap[refCode]||refCode:'সরাসরি';const selected=a.is_selected;
+    const ct={'zero':'শূন্য','one_two':'১–২','three_four':'৩–৪','four_plus':'৪+'}[a.current_tuitions]||'—';
+    const waPhone=(a.user_phone||'').replace(/[^0-9]/g,'').replace(/^0/,'880');
+    const details=buildCopyMsg(a,tuit);
+    const safeName=a.user_name.replace(/'/g,"\\'").replace(/"/g,'\\"');
+    const safePhone=a.user_phone.replace(/'/g,"\\'");
+    const safeRef=(refCode||'').replace(/'/g,"\\'");
+    return `<div class="appinfo" id="app-${a.id}">
+      <h4>${idx===0?'🥇 ':idx===1?'🥈 ':''}${a.user_name} <span class="rank-score">${a._score}pts</span>${selected?'<span class="badge bg" style="margin-left:5px;font-size:10px">✅ সিলেক্টেড</span>':''}</h4>
+      <p>📱 <a href="https://wa.me/${waPhone}" target="_blank" style="color:#25d366;font-weight:700;text-decoration:underline">💬 ${a.user_phone}</a><br>🏫 ${a.user_university||'—'} (${a.user_year||'—'})<br>👨‍👩‍👦 অভিভাবক: ${a.user_parents_phone||'—'}<br>🆘 জরুরি: ${a.user_emergency_contact||'—'}<br>🔗 মডারেটর: <strong style="color:var(--rose)">${modName}</strong><br>📚 বর্তমান টিউশন: ${ct} | মিডিয়া ফি: ${a.paid_media_fee_before?'হ্যাঁ':'না'}<br>📅 ${new Date(a.created_at).toLocaleString('bn-BD')}</p>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+        ${isAdmin?`<button class="sel-btn ${selected?'sel':'unsel'}" id="selbtn-${a.id}" onclick="toggleSel('${a.id}','${tid}','${safeName}','${safePhone}','${safeRef}',${selected})">${selected?'✅ বাতিল করুন':'⭐ সিলেক্ট করুন'}</button>`:''}
+        <button class="bsm bblue" style="padding:6px 11px" onclick='copyAppDetails(${JSON.stringify(details)})'>📋 বিস্তারিত কপি</button>
+        <a href="https://wa.me/${waPhone}?text=${encodeURIComponent('আসসালামু আলাইকুম '+a.user_name+'! WE WOMEN থেকে আপনার সাথে যোগাযোগ করছি।')}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;padding:6px 11px;background:linear-gradient(135deg,#25d366,#128c7e);color:#fff;border-radius:8px;font-family:var(--f);font-size:11px;font-weight:700;text-decoration:none;cursor:pointer">💬 WhatsApp</a>
+      </div>
+    </div>`;
+  }).join('');
+}
+async function toggleSel(appId,tuitId,name,phone,refCode,cur){
+  const btn=document.getElementById('selbtn-'+appId);if(btn){btn.disabled=true;btn.textContent='আপডেট...';}
+  const newVal=!cur;await sb.from('wsep_applications').update({is_selected:newVal}).eq('id',appId);
+  // If selected, hide tuition from main app
+  if(newVal)await sb.from('wsep_tuitions').update({show_on_site:false,status:'booked'}).eq('id',tuitId);
+  if(btn){btn.disabled=false;btn.className=`sel-btn ${newVal?'sel':'unsel'}`;btn.textContent=newVal?'✅ বাতিল করুন':'⭐ সিলেক্ট করুন';btn.setAttribute('onclick',`toggleSel('${appId}','${tuitId}','${name}','${phone}','${refCode}',${newVal})`);}
+  const h4=document.querySelector(`#app-${appId} h4`);if(h4){const old=h4.querySelector('.badge.bg');if(old)old.remove();if(newVal)h4.insertAdjacentHTML('beforeend','<span class="badge bg" style="margin-left:5px;font-size:10px">✅ সিলেক্টেড</span>');}
+  toast(newVal?`${name} সিলেক্ট হয়েছেন ✅`:`${name} এর সিলেকশন বাতিল`);
+  if(newVal&&refCode&&modMap[refCode]){const t=allTuits.find(t=>t.id===tuitId)||{};await sb.from('wsep_mod_notifications').insert([{mod_username:modMap[refCode],tuition_id:tuitId,tutor_name:name,tutor_phone:phone,message:`${name} টিউশনে সিলেক্ট — ${t.location||''}`,is_read:false}]);}
+}
+function closeAppMod(){document.getElementById('appmod').classList.remove('open');}
+function buildCopyMsg(a,tuit){
+  const tutorDetails=`👤 টিউটর তথ্য:\nনাম: ${a.user_name||'—'}\nফোন: ${a.user_phone||'—'}\nWhatsApp: ${a.user_phone||'—'}\nঅভিভাবক: ${a.user_parents_phone||'—'}`;
+  const tuitionDetails=`\n\n📋 টিউশন তথ্য:\nলোকেশন: ${tuit.location||'—'}\nবেতন: ৳${Number(tuit.salary||0).toLocaleString()}/মাস\nক্লাস: ${tuit.class||'—'}\nসময়: ${tuit.time_slot||'—'}\nদিন: ${tuit.days||'—'}\nবিষয়: ${tuit.medium||'—'}\n${tuit.guardian_name?'গার্ডিয়ান: '+tuit.guardian_name+'\n':''}${tuit.guardian_phone?'গার্ডিয়ান নম্বর: '+tuit.guardian_phone+'\n':''}`;
+  const waMsg=`\n\nঅভিনন্দন ${a.user_name||''}! আপনি নিচের টিউশনটির জন্য শর্টলিস্টেড হয়েছেন।\n\n"আপনি ফ্রি থাকলে, আমাদের একজন প্রতিনিধি আপনার সাথে ফোনে যোগাযোগ করবে, আপনি কি ফ্রি?"`;
+  return tutorDetails+tuitionDetails+waMsg;
+}
+function copyAppDetails(text){navigator.clipboard.writeText(text).then(()=>toast('📋 বিস্তারিত কপি হয়েছে!'));}
+document.getElementById('appmod').addEventListener('click',e=>{if(e.target===document.getElementById('appmod'))closeAppMod();});
+
+// ════════════ COMMUNITY ════════════
+async function loadCommunityMod(){
+  const el=document.getElementById('comm-approved-list');
+  el.innerHTML=`<div class="skl" style="height:54px"></div>`;
+  const{data}=await sb.from('wsep_community_posts').select('*').eq('is_approved',true).order('created_at',{ascending:false}).limit(40);
+  if(!data||!data.length){el.innerHTML='<div class="no-data">কোনো পোস্ট নেই</div>';return;}
+  el.innerHTML=data.map(p=>`<div class="comm-mod-post" id="cap-${p.id}">
+    <div class="comm-mod-name">👤 ${p.display_name||p.author_name}${p.is_admin_post?' <span class="badge bb" style="font-size:9px">Admin</span>':''} <span style="font-size:10px;color:#aaa">• ${new Date(p.created_at).toLocaleString('bn-BD')}</span></div>
+    <div class="comm-mod-content">${p.content}</div>
+    <button class="bsm bd" onclick="deletePost('${p.id}')">🗑️ মুছুন</button>
+  </div>`).join('');
+}
+async function deletePost(id){if(!confirm('মুছবেন?'))return;await sb.from('wsep_community_posts').delete().eq('id',id);document.getElementById('cap-'+id)?.remove();toast('মুছে ফেলা হয়েছে');}
+async function adminPost(){
+  const content=document.getElementById('admin-post-content').value.trim();const displayName=document.getElementById('admin-post-name').value.trim()||'Admin';
+  if(!content)return toast('পোস্টের বিষয়বস্তু লিখুন');
+  await sb.from('wsep_community_posts').insert([{author_name:'Admin',display_name:displayName,content,is_approved:true,is_admin_post:true}]);
+  document.getElementById('admin-post-content').value='';document.getElementById('admin-post-name').value='';
+  toast('পোস্ট প্রকাশিত ✅');loadCommunityMod();
+}
+
+// ════════════ APPLIED TUITIONS ════════════
+// Shows tuition cards (not applicant rows) — only tuitions that have at least 1 application
+let allApplied=[],filteredApplied=[],appliedPage=1;
+async function loadAppliedTuitions(){
+  const el=document.getElementById('applied-list');
+  el.innerHTML=Array(3).fill('').map(()=>`<div class="skl" style="height:70px;margin-bottom:9px"></div>`).join('');
+  document.getElementById('applied-count').textContent='লোড হচ্ছে...';
+
+  // Get all applications to count per tuition
+  const appQ=sess.role==='moderator'
+    ?sb.from('wsep_applications').select('tuition_id,is_selected,created_at').order('created_at',{ascending:false})
+    :sb.from('wsep_applications').select('tuition_id,is_selected,created_at').order('created_at',{ascending:false});
+
+  const tuitQ=sess.role==='admin'
+    ?sb.from('wsep_tuitions').select('*').order('created_at',{ascending:false})
+    :sb.from('wsep_tuitions').select('id,location,salary,class,medium,days,time_slot,version,serial_no,status,note,show_on_site,pipeline_status,pipeline_note,zone,is_f34,kisti1_date,kisti2_date,created_at').order('created_at',{ascending:false});
+
+  const [{data:apps},{data:tuits}]=await Promise.all([appQ,tuitQ]);
+
+  // Count apps per tuition
+  const appCount={};const appSel={};
+  (apps||[]).forEach(a=>{
+    appCount[a.tuition_id]=(appCount[a.tuition_id]||0)+1;
+    if(a.is_selected)appSel[a.tuition_id]=true;
+  });
+
+  // Only tuitions that have at least 1 application
+  const tuitIdsWithApps=new Set(Object.keys(appCount));
+  allApplied=(tuits||[]).filter(t=>tuitIdsWithApps.has(t.id)).map(t=>({...t,_appCount:appCount[t.id]||0,_hasSel:!!appSel[t.id]}));
+
+  // Sort by most recent application
+  const latestApp={};(apps||[]).forEach(a=>{if(!latestApp[a.tuition_id]||new Date(a.created_at)>new Date(latestApp[a.tuition_id]))latestApp[a.tuition_id]=a.created_at;});
+  allApplied.sort((a,b)=>new Date(latestApp[b.id]||b.created_at)-new Date(latestApp[a.id]||a.created_at));
+
+  appliedPage=1;filterAppliedTuits();
+}
+
+function filterAppliedTuits(){
+  const q=(document.getElementById('app-srch')?.value||'').toLowerCase();
+  const pipe=document.getElementById('app-pipe-filter')?.value||'';
+  filteredApplied=allApplied.filter(t=>{
+    const matchQ=!q||(t.location||'').toLowerCase().includes(q)||(t.serial_no||'').toString().includes(q)||(t.class||'').toLowerCase().includes(q);
+    const matchPipe=!pipe||(t.pipeline_status||'new')===pipe;
+    return matchQ&&matchPipe;
+  });
+  appliedPage=1;renderAppliedTuits();
+}
+
+function renderAppliedTuits(){
+  const total=filteredApplied.length,tp=Math.ceil(total/PAGE_SIZE)||1,start=(appliedPage-1)*PAGE_SIZE,end=Math.min(start+PAGE_SIZE,total);
+  const page=filteredApplied.slice(start,end);
+  document.getElementById('applied-count').textContent=`মোট: ${total}টি টিউশনে আবেদন আছে`;
+  document.getElementById('pg-info-applied').textContent=`পেজ ${appliedPage}/${tp} — ${start+1}–${end}`;
+  document.getElementById('pg-prev-applied').disabled=appliedPage<=1;
+  document.getElementById('pg-next-applied').disabled=appliedPage>=tp;
+  const el=document.getElementById('applied-list');
+  const isAdmin=sess.role==='admin';
+  if(!page.length){el.innerHTML='<div class="no-data">কোনো আবেদনকৃত টিউশন নেই</div>';return;}
+  el.innerHTML=page.map(t=>{
+    const ps=PIPE_STATUSES.find(p=>p.val===(t.pipeline_status||'new'))||PIPE_STATUSES[0];
+    const kws=[
+      {icon:'📍',label:'লোকেশন',val:t.location},
+      {icon:'💰',label:'বেতন',val:`৳${Number(t.salary).toLocaleString()}/মাস`},
+      {icon:'📚',label:'ক্লাস',val:t.class},
+      {icon:'🗣️',label:'মিডিয়াম',val:t.medium},
+      {icon:'📅',label:'দিন',val:t.days},
+      {icon:'⏰',label:'সময়',val:t.time_slot},
+    ].filter(k=>k.val);
+    return `<div class="tcard">
+      <div class="tcard-serial">#${t.serial_no||'—'}</div>
+      <div class="tcard-loc">📍 ${t.location}</div>
+      <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:7px">
+        <div class="tcard-sal">৳${Number(t.salary).toLocaleString()}/মাস</div>
+        <span class="badge ${t.status==='available'?'bg':'br'}">${t.status==='available'?'উপলব্ধ':'বুকড'}</span>
+        <span class="badge bb" style="font-size:10px">📨 ${t._appCount}টি আবেদন</span>
+        ${t._hasSel?'<span class="badge bg" style="font-size:10px">✅ সিলেক্টেড</span>':''}
+        <span class="pipe-badge pipe-${t.pipeline_status||'new'}">${ps.icon} ${ps.label}</span>
+      </div>
+      <div class="tcard-tags">
+        <span class="tcard-tag">📚 ${t.class}</span>
+        <span class="tcard-tag">🗣️ ${t.medium}</span>
+        ${t.days?`<span class="tcard-tag">📅 ${t.days}</span>`:''}
+        ${t.time_slot?`<span class="tcard-tag">⏰ ${t.time_slot}</span>`:''}
+        ${t.version?`<span class="tcard-tag">📖 ${t.version}</span>`:''}
+      </div>
+      ${isAdmin&&t.guardian_phone?`<div style="font-size:12px;color:var(--rose);font-weight:700;margin-bottom:6px;background:rgba(201,24,74,.06);padding:5px 9px;border-radius:7px">👨‍👩‍👦 গার্ডিয়ান: ${t.guardian_phone}</div>`:''}
+      ${t.note?`<div class="tcard-note">${t.note}</div>`:''}
+      <div class="tcard-actions">
+        <button class="bsm bblue" onclick="viewApplicants('${t.id}')">👁️ আবেদনকারী দেখুন (${t._appCount})</button>
+        <button class="bsm bsec" onclick="openPipeMod('${t.id}','${t.pipeline_status||'new'}')">✏️ পাইপলাইন</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function changeAppliedPage(d){appliedPage+=d;renderAppliedTuits();}
+
+// ════════════ ANALYTICS ════════════
+function fmtTime(s){if(!s||s<1)return'0s';if(s<60)return s+'s';const m=Math.floor(s/60);const sec=s%60;return m+'m'+(sec>0?' '+sec+'s':'');}
+const ANA_PAGE_NAMES={home:'হোম',safety:'সুরক্ষা',community:'কমিউনিটি',jogajog:'যোগাযোগ'};
+const ANA_VISIT_LABELS={1:'১ম বার',2:'২য় বার',3:'৩য় বার',4:'৪র্থ বার',5:'৫ম বার',6:'৬ষ্ঠ বার',7:'৭ম বার',8:'৮ম বার',9:'৯ম+ বার'};
+
+async function loadAnalytics(){
+  // Visible to both admin and moderators
+  // Page analytics
+  const el_pageov=document.getElementById('page-ana-overview');
+  const el_pagedet=document.getElementById('page-ana-detail');
+  el_pageov.innerHTML='<div class="skl" style="height:60px"></div>';
+  el_pagedet.innerHTML='';
+
+  // 5 tracking links
+  const el_links=document.getElementById('track-links-admin');
+  const el_daily=document.getElementById('daily-login-chart');
+  const el_ov=document.getElementById('ana-overview');
+  el_links.innerHTML='<div class="skl" style="height:60px"></div>';
+  el_daily.innerHTML='<div class="skl" style="height:50px"></div>';
+
+  const[{data:links},{data:events},{data:dailyLogins},{count:totalUsers},{count:totalApps},{data:pageSessions}]=await Promise.all([
+    sb.from('wsep_track_links').select('*').order('link_id'),
+    sb.from('wsep_track_events').select('link_id,event_type,session_id'),
+    sb.from('wsep_daily_logins').select('login_date').gte('login_date', new Date(Date.now()-13*86400000).toISOString().slice(0,10)).order('login_date'),
+    sb.from('wsep_users').select('*',{count:'exact',head:true}),
+    sb.from('wsep_applications').select('*',{count:'exact',head:true}),
+    sb.from('wsep_analytics').select('page_times,page_flow,is_logged,session_duration').order('created_at',{ascending:false}).limit(500)
+  ]);
+
+  // ─── Time-on-Site Analytics ───
+  let totalSess=0,totalTime=0,shortSess=0,longSess=0,avgPerPage={};
+  const pageLabelMap={home:'🏠 হোম',safety:'🛡️ সুরক্ষা',community:'🌸 কমিউনিটি',jogajog:'🎓 যাচাইকরণ',tuition:'📚 টিউশন'};
+  (pageSessions||[]).forEach(s=>{
+    totalSess++;
+    const dur=s.session_duration||0;
+    totalTime+=dur;
+    if(dur<60)shortSess++;
+    else if(dur>=180)longSess++;
+    let pt={};try{pt=JSON.parse(s.page_times||'{}');}catch{}
+    Object.entries(pt).forEach(([pg,sec])=>{if(!avgPerPage[pg])avgPerPage[pg]={total:0,count:0};avgPerPage[pg].total+=sec;avgPerPage[pg].count++;});
+  });
+  const avgSession=totalSess>0?Math.round(totalTime/totalSess):0;
+  el_pageov.innerHTML=`
+    <div class="ana-card"><div class="ana-num">${totalSess}</div><div class="ana-label">মোট সেশন</div></div>
+    <div class="ana-card"><div class="ana-num">${fmtTime(avgSession)}</div><div class="ana-label">গড় সেশন সময়</div></div>
+    <div class="ana-card"><div class="ana-num">${fmtTime(totalSess>0?Math.round(totalTime/60):0)}মি</div><div class="ana-label">মোট সময় (মিনিট)</div></div>
+    <div class="ana-card"><div class="ana-num">${longSess}</div><div class="ana-label">৩+ মিনিট সেশন</div></div>`;
+  const pageRows=Object.entries(avgPerPage).filter(([,v])=>v.count>0).map(([pg,v])=>{
+    const label=pageLabelMap[pg]||pg;
+    const avg=Math.round(v.total/v.count);
+    return `<tr><td><strong>${label}</strong></td><td>${v.count}</td><td>${fmtTime(v.total)}</td><td><strong>${fmtTime(avg)}</strong></td></tr>`;
+  }).join('');
+  el_pagedet.innerHTML=pageRows?`
+    <div style="background:rgba(255,255,255,.7);border:1px solid rgba(201,24,74,.1);border-radius:12px;overflow:hidden">
+      <table class="ana-table">
+        <thead><tr><th>পেজ</th><th>ভিজিট</th><th>মোট সময়</th><th>গড় সময়</th></tr></thead>
+        <tbody>${pageRows}</tbody>
+      </table>
+    </div>`:'<div class="no-data">পেজ ডেটা নেই</div>';
+
+
+  // Aggregate per link
+  const agg={};
+  (events||[]).forEach(e=>{
+    if(!agg[e.link_id])agg[e.link_id]={click:new Set(),register:new Set(),install:new Set()};
+    agg[e.link_id][e.event_type]?.add(e.session_id);
+  });
+
+  const BASE=location.origin;
+  el_links.innerHTML=(links||[]).map(l=>{
+    const a=agg[l.link_id]||{click:new Set(),register:new Set(),install:new Set()};
+    const clicks=a.click?.size||0,regs=a.register?.size||0,insts=a.install?.size||0;
+    const url=`${BASE}/?tl=${l.link_id}`;
+    const convPct=clicks>0?Math.round(regs/clicks*100):0;
+    return `<div style="background:rgba(255,255,255,.7);border:1px solid rgba(201,24,74,.1);border-radius:13px;padding:14px;margin-bottom:11px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px;flex-wrap:wrap">
+        <div style="font-size:14px;font-weight:800;color:var(--deep);font-family:var(--fd)">${l.label} <span style="font-size:10px;font-weight:600;color:#aaa;font-family:var(--f)">(${l.link_id})</span></div>
+        <input type="text" value="${l.label}" style="border:1.5px solid rgba(201,24,74,.15);border-radius:8px;padding:4px 9px;font-family:var(--f);font-size:12px;outline:none;width:110px" onchange="renameLink('${l.link_id}',this.value)">
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:10px">
+        <div style="background:rgba(59,130,246,.07);border-radius:10px;padding:10px;text-align:center">
+          <div style="font-size:22px;font-weight:900;color:#1d4ed8;font-family:var(--fd)">${clicks}</div>
+          <div style="font-size:10px;color:#888;margin-top:2px">ক্লিক</div>
+        </div>
+        <div style="background:rgba(201,24,74,.07);border-radius:10px;padding:10px;text-align:center">
+          <div style="font-size:22px;font-weight:900;color:var(--rose);font-family:var(--fd)">${regs}</div>
+          <div style="font-size:10px;color:#888;margin-top:2px">নিবন্ধন</div>
+        </div>
+        <div style="background:rgba(34,197,94,.07);border-radius:10px;padding:10px;text-align:center">
+          <div style="font-size:22px;font-weight:900;color:#16a34a;font-family:var(--fd)">${insts}</div>
+          <div style="font-size:10px;color:#888;margin-top:2px">ইনস্টল</div>
+        </div>
+        <div style="background:rgba(244,162,97,.1);border-radius:10px;padding:10px;text-align:center">
+          <div style="font-size:22px;font-weight:900;color:#c06000;font-family:var(--fd)">${convPct}%</div>
+          <div style="font-size:10px;color:#888;margin-top:2px">রূপান্তর</div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:#aaa;margin-bottom:4px">লিঙ্ক:</div>
+      <div class="refbox">${url}</div>
+      <button class="copybtn" style="margin-top:5px" onclick="copyText('${url}')">📋 কপি করুন</button>
+    </div>`;
+  }).join('')||'<div class="no-data">লিঙ্ক লোড হয়নি</div>';
+
+  // Daily logins chart (last 14 days)
+  const today=new Date();const bd=new Date(today.getTime()+6*3600000);
+  const days=[];for(let i=13;i>=0;i--){const d=new Date(bd);d.setUTCDate(d.getUTCDate()-i);days.push(d.toISOString().slice(0,10));}
+  const dlCount={};(dailyLogins||[]).forEach(r=>{dlCount[r.login_date]=(dlCount[r.login_date]||0)+1;});
+  const maxDL=Math.max(1,...Object.values(dlCount));
+  el_daily.innerHTML=`<div style="display:flex;align-items:flex-end;gap:4px;height:80px;padding:0 2px">
+    ${days.map(d=>{
+      const n=dlCount[d]||0;const h=Math.max(4,Math.round(n/maxDL*72));
+      const isToday=d===bd.toISOString().slice(0,10);
+      return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+        <div style="font-size:9px;color:#aaa">${n||''}</div>
+        <div style="height:${h}px;border-radius:4px 4px 0 0;background:${isToday?'linear-gradient(135deg,#c9184a,#ff4d6d)':'rgba(201,24,74,.25)'};width:100%;min-width:14px"></div>
+        <div style="font-size:8px;color:#ccc;white-space:nowrap">${d.slice(8)}</div>
+      </div>`;
+    }).join('')}
+  </div>`;
+
+  // Summary
+  const totalLogins=(dailyLogins||[]).length;
+  const todayStr=bd.toISOString().slice(0,10);
+  const todayLogins=dlCount[todayStr]||0;
+  el_ov.innerHTML=`
+    <div class="ana-card"><div class="ana-num">${totalUsers||0}</div><div class="ana-label">মোট ব্যবহারকারী</div></div>
+    <div class="ana-card"><div class="ana-num">${totalApps||0}</div><div class="ana-label">মোট আবেদন</div></div>
+    <div class="ana-card"><div class="ana-num">${todayLogins}</div><div class="ana-label">আজকের লগইন</div></div>
+    <div class="ana-card"><div class="ana-num">${totalLogins}</div><div class="ana-label">মোট লগইন (১৪ দিন)</div></div>`;
+}
+
+async function renameLink(linkId, newLabel){
+  if(!newLabel.trim())return;
+  try{await sb.from('wsep_track_links').update({label:newLabel.trim()}).eq('link_id',linkId);toast('লেবেল আপডেট হয়েছে ✅');}catch{toast('আপডেট হয়নি');}
+}
+
+
+// ════════════ MODS ════════════
+async function loadMods(){
+  if(sess.role!=='admin')return;
+  const mlistEl=document.getElementById('mlist');
+  mlistEl.innerHTML=Array(4).fill('').map(()=>`<div class="skl" style="height:60px;margin-bottom:8px"></div>`).join('');
+  const[{data:mods},{data:userRefs}]=await Promise.all([
+    sb.from('wsep_moderators').select('*').order('created_at'),
+    sb.from('wsep_users').select('id,referral_code,created_at').not('referral_code','is',null)
+  ]);
+  if(!mods){mlistEl.innerHTML='<div class="no-data">লোড হয়নি</div>';return;}
+
+  // Count registrations per mod's referral_code, only from reset date onwards
+  // Each mod row may have ref_count_reset_at (set when admin resets their count)
+  const cm={};
+  (userRefs||[]).forEach(u=>{
+    if(!u.referral_code)return;
+    const mod=mods.find(m=>m.referral_code===u.referral_code);
+    if(!mod)return;
+    const resetAt=mod.ref_count_reset_at;
+    if(resetAt&&new Date(u.created_at)<new Date(resetAt))return; // before reset, skip
+    cm[u.referral_code]=(cm[u.referral_code]||0)+1;
+  });
+
+  mlistEl.innerHTML=mods.map(m=>{
+    if(m.role==='admin')return''; // skip admin row
+    const rc=cm[m.referral_code]||0;
+    // Update DB count silently
+    if(rc!==(m.referral_count||0))sb.from('wsep_moderators').update({referral_count:rc}).eq('id',m.id).then(()=>{});
+    const rUrl=refLink(m.username);
+    const resetDate=m.ref_count_reset_at?new Date(m.ref_count_reset_at).toLocaleDateString('bn-BD'):'কখনো রিসেট হয়নি';
+    return `<div style="background:rgba(255,255,255,.8);border:1px solid rgba(201,24,74,.12);border-radius:15px;padding:15px;margin-bottom:11px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:7px;flex-wrap:wrap;margin-bottom:11px">
+        <div>
+          <div style="font-size:15px;font-weight:800;color:var(--deep);font-family:var(--fd)">${m.username}
+            <span class="badge ${m.is_banned?'br':'bg'}" style="font-size:10px;vertical-align:middle">${m.is_banned?'ব্যান':'সক্রিয়'}</span>
+          </div>
+          <div style="font-size:11px;color:#bbb;margin-top:1px">রিসেট তারিখ: ${resetDate}</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="bsm borange" onclick="resetModCount('${m.id}','${m.username}')">🔄 কাউন্ট রিসেট</button>
+          <button class="bsm ${m.is_banned?'bs':'bd'}" onclick="toggleBan('${m.id}',${m.is_banned})">${m.is_banned?'আনব্যান':'ব্যান'}</button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:11px">
+        <div style="background:rgba(201,24,74,.06);border-radius:10px;padding:10px;text-align:center">
+          <div style="font-size:24px;font-weight:900;color:var(--rose);font-family:var(--fd)">${rc}</div>
+          <div style="font-size:10px;color:#888;margin-top:2px">নিবন্ধন</div>
+        </div>
+        <div style="background:rgba(59,130,246,.06);border-radius:10px;padding:10px;text-align:center">
+          <div style="font-size:24px;font-weight:900;color:#1d4ed8;font-family:var(--fd)">—</div>
+          <div style="font-size:10px;color:#888;margin-top:2px">লিঙ্ক ক্লিক</div>
+        </div>
+        <div style="background:rgba(34,197,94,.06);border-radius:10px;padding:10px;text-align:center">
+          <div style="font-size:24px;font-weight:900;color:#16a34a;font-family:var(--fd)">—</div>
+          <div style="font-size:10px;color:#888;margin-top:2px">অ্যাপ ইনস্টল</div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:#aaa;margin-bottom:4px">রেফারেল লিঙ্ক:</div>
+      <div class="refbox" id="refbox-${m.id}">${rUrl}</div>
+      <button class="copybtn" onclick="copyText(document.getElementById('refbox-${m.id}').textContent)" style="margin-top:6px">📋 কপি করুন</button>
+    </div>`;
+  }).join('');
+}
+async function resetModCount(modId,username){
+  if(!confirm(`${username}-এর রেফারেল কাউন্ট আজ থেকে ০ থেকে শুরু করবেন?`))return;
+  const now=new Date().toISOString();
+  const{error}=await sb.from('wsep_moderators').update({referral_count:0,ref_count_reset_at:now}).eq('id',modId);
+  if(!error){toast(`✅ ${username}-এর কাউন্ট রিসেট হয়েছে`);loadMods();}
+  else toast('রিসেট হয়নি: '+error.message);
+}
+async function toggleBan(id,cur){await sb.from('wsep_moderators').update({is_banned:!cur}).eq('id',id);toast(`মডারেটর ${!cur?'ব্যান':'আনব্যান'} করা হয়েছে`);loadMods();}
+function copyText(t){navigator.clipboard.writeText(t).then(()=>toast('কপি হয়েছে! 📋'));}
+
+// ════════════ ZONES ════════════
+async function loadZoneStats(){
+  if(sess.role!=='admin')return;
+  // Mod referral links only (no zone links per request)
+  const{data:mods}=await sb.from('wsep_moderators').select('username,referral_code,referral_count').order('referral_count',{ascending:false});
+  document.getElementById('zone-mod-links').innerHTML=(mods||[]).filter(m=>m.role!=='admin').map(m=>{const ru=refLink(m.username);return`<div class="zone-link-row"><div class="zone-link-label">📋 ${m.username} — ${m.referral_count||0} জন রেফারেল</div><div class="refbox" id="zref-${m.id}">${ru}</div><button class="copybtn" onclick="copyText(document.getElementById('zref-${m.id}').textContent)">📋 কপি</button></div>`;}).join('')||'<div class="no-data">মডারেটর নেই</div>';
+  // Zone stats
+  document.getElementById('zone-stats').innerHTML=`<div class="skl" style="height:80px"></div>`;
+  try{
+    const{data:clicks}=await sb.from('wsep_zone_clicks').select('zone,registered,installed');
+    const zs={};['1','2','3','4','5','6','7','8','9','10'].forEach(z=>{zs[z]={c:0,r:0,i:0};});
+    (clicks||[]).forEach(c=>{if(zs[c.zone]){zs[c.zone].c++;if(c.registered)zs[c.zone].r++;if(c.installed)zs[c.zone].i++;}});
+    document.getElementById('zone-stats').innerHTML=`<div class="tbl-wrap"><table class="ana-table"><thead><tr><th>জোন</th><th>ক্লিক</th><th>নিবন্ধন</th><th>ইনস্টল</th></tr></thead><tbody>${Object.entries(zs).filter(([z,s])=>s.c>0).map(([z,s])=>`<tr><td>জোন ${z}</td><td>${s.c}</td><td>${s.r}</td><td>${s.i}</td></tr>`).join('')||'<tr><td colspan="4" class="no-data">কোনো ক্লিক নেই</td></tr>'}</tbody></table></div>`;
+  }catch{document.getElementById('zone-stats').innerHTML='<div class="no-data">লোড হয়নি</div>';}
+}
+
+// ════════════ TOAST ════════════
+function toast(m){const t=document.getElementById('atst');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3200);}
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('login-scr').style.display!=='none')doLogin();});
+</script>
+</body>
+</html>
